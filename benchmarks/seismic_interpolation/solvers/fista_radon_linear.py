@@ -1,16 +1,20 @@
 import numpy as np
 from benchopt import BaseSolver
 from pylops.optimization.sparsity import fista
-from pylops.signalprocessing import Radon2D
+from pylops.signalprocessing import FourierRadon2D
 
 
 class Solver(BaseSolver):
     r"""Sparsity-promoting inversion in the linear Radon domain, solved with FISTA.
 
     .. math::
-        \min_p \|y - Op R p\|_2^2 + \epsilon \|p\|_1, \quad x = R p
+        \min_p \|y - Op R p\|_2^2 + \epsilon_k \|p\|_1, \quad x = R p
 
-    where :math:`R` is the linear (slant-stack) Radon transform.
+    where :math:`R` is the linear Radon transform (implemented in the
+    frequency domain with :class:`pylops.signalprocessing.FourierRadon2D`).
+    The sparsity weight decays with the iterations (continuation),
+    :math:`\epsilon_k = \max(\epsilon, \epsilon_0 \gamma^k)` with
+    :math:`\epsilon_0 = \text{eps0\_factor} \cdot \epsilon`.
     """
 
     name = "FISTA-Radon2D"
@@ -21,7 +25,10 @@ class Solver(BaseSolver):
     parameters = {
         "npx": [200],
         "pxmax": [2e-3],
-        "eps": [8e-1],
+        "nfft": [256],
+        "eps": [2e-1],
+        "eps0_factor": [5.0],
+        "gamma": [0.97],
         "niter": [100],
     }
 
@@ -29,11 +36,11 @@ class Solver(BaseSolver):
         self.dims = meta["dims"]
         self.y = y
         px = np.linspace(-self.pxmax, self.pxmax, self.npx)
-        self.Pop = Radon2D(
+        self.Pop = FourierRadon2D(
             meta["taxis"],
             meta["xaxis"],
             px,
-            centeredh=True,
+            self.nfft,
             kind="linear",
             engine="numba",
             dtype=Op.dtype,
@@ -46,6 +53,10 @@ class Solver(BaseSolver):
             .standard_normal(self.SIop.shape[1])
             .astype(self.SIop.dtype)
         )
+        # threshold multiplier: eps0_factor * gamma**k, never below 1
+        self.decay = np.maximum(
+            1.0, self.eps0_factor * self.gamma ** np.arange(self.niter)
+        )
 
     def run(self, _):
         self.p = fista(
@@ -54,6 +65,7 @@ class Solver(BaseSolver):
             niter=self.niter,
             eps=self.eps,
             eigsdict=self.eigsdict,
+            decay=self.decay,
         )[0]
 
     def get_result(self):

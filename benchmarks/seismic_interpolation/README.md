@@ -14,5 +14,11 @@ Solvers compared:
 | Solver | Formulation |
 | ------ | ----------- |
 | `LSQR-SecondDerivative` | Regularized least squares with a second derivative along the spatial axis, solved with LSQR |
-| `FISTA-FFT2D` | Sparsity-promoting inversion in the f-k domain (2D FFT as preconditioner) |
-| `FISTA-Radon2D` | Sparsity-promoting inversion in the linear Radon (tau-p) domain |
+| `FISTA-FFT2D` | L1 sparsity-promoting inversion in the f-k domain (2D FFT as preconditioner), solved with FISTA with a decaying sparsity weight |
+| `FISTA-Radon2D` | L1 sparsity-promoting inversion in the linear Radon (tau-p) domain, solved with FISTA with a decaying sparsity weight |
+| `OMP-Radon2D` | Greedy L0 inversion in the linear Radon domain, solved with Orthogonal Matching Pursuit |
+| `AIHT-Radon2D` | L0-regularized inversion in the linear Radon domain, solved with Accelerated Iterative Hard Thresholding (PyProximal) with a decaying sparsity weight |
+| `POCS-L0-Radon2D` | L0-regularized inversion in the linear Radon domain with exact data consistency, alternating hard thresholding with a decaying sparsity weight and projection onto the data-consistent affine set (PyProximal HQS) |
+
+All Radon solvers use the same dictionary, `pylops.signalprocessing.FourierRadon2D`
+with a linear kernel.
