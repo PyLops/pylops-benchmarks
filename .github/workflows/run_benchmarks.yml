@@ -1,0 +1,125 @@
+name: Run benchmarks
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "benchmarks/**"
+      - "pylops_bench/**"
+      - "pyproject.toml"
+      - "uv.lock"
+  workflow_dispatch:
+    inputs:
+      benchmark:
+        description: "Benchmark folder in benchmarks/ (or 'all')"
+        type: string
+        default: all
+      pylops_ref:
+        description: "PyLops git ref to test (e.g. main); empty = latest PyPI release"
+        type: string
+        default: ""
+
+# runs are serialized so that result commits never race each other
+concurrency:
+  group: run-benchmarks
+  cancel-in-progress: false
+
+env:
+  PYTHON_VERSION: "3.12"
+
+jobs:
+  find:
+    runs-on: ubuntu-latest
+    outputs:
+      dirs: ${{ steps.find.outputs.dirs }}
+      found: ${{ steps.find.outputs.found }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: find
+        env:
+          BENCHMARK: ${{ inputs.benchmark }}
+          BEFORE: ${{ github.event.before }}
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            python3 .github/scripts/find_benchmarks.py --benchmark "$BENCHMARK"
+          else
+            python3 .github/scripts/find_benchmarks.py --base "$BEFORE"
+          fi
+
+  run:
+    needs: find
+    if: needs.find.outputs.found == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      matrix:
+        benchmark: ${{ fromJSON(needs.find.outputs.dirs) }}
+    env:
+      # do not let `uv run` re-sync the environment (it would undo the
+      # optional PyLops override below)
+      UV_NO_SYNC: "1"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          enable-cache: true
+      - name: Install
+        env:
+          PYLOPS_REF: ${{ inputs.pylops_ref }}
+        run: |
+          uv sync --locked --no-dev
+          if [ -n "$PYLOPS_REF" ]; then
+            uv pip install --reinstall --no-deps \
+              "pylops @ git+https://github.com/PyLops/pylops@${PYLOPS_REF}"
+          fi
+          uv pip list | grep -iE "^(pylops|benchopt|numpy|scipy|numba) "
+      - name: Run benchmark
+        run: >
+          uv run benchopt run benchmarks/${{ matrix.benchmark }}
+          --config benchmarks/${{ matrix.benchmark }}/run_config.yml
+          --no-plot --no-display --no-cache
+          --output "$RUNNER_TEMP/${{ matrix.benchmark }}.csv"
+      - name: Update result table
+        run: >
+          uv run python scripts/collect_results.py ${{ matrix.benchmark }}
+          "$RUNNER_TEMP/${{ matrix.benchmark }}.csv"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: results-${{ matrix.benchmark }}
+          path: results/${{ matrix.benchmark }}.csv
+          if-no-files-found: error
+
+  commit:
+    needs: run
+    # commit whatever finished, even if some benchmarks failed
+    if: ${{ !cancelled() && needs.run.result != 'skipped' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: results-*
+          merge-multiple: true
+          path: results
+      - name: Commit results
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add results/*.csv
+          if git diff --cached --quiet; then
+            echo "No result changes"
+            exit 0
+          fi
+          git commit -m "Update benchmark results [skip ci]"
+          git pull --rebase
+          git push

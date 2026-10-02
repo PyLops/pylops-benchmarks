@@ -1,0 +1,63 @@
+[build-system]
+requires = [
+    "hatchling",
+    "hatch-vcs"
+]
+build-backend = "hatchling.build"
+
+[project]
+name = "pylops_bench"
+description = "PyLops Benchmarks: a zoo of problems + inversion setups = comparison metrics"
+readme = "README.md"
+authors = [
+    {name = "Matteo Ravasi", email = "matteoravasi@gmail.com"},
+]
+license = {text = "LGPL-3.0-or-later"}
+requires-python = ">=3.11"
+dependencies = [
+    "benchopt >= 1.10",
+    "pylops",
+    "numba",
+    "numpy",
+    "pandas",
+]
+dynamic = ["version"]
+
+[dependency-groups]
+dev = [
+    "pytest",
+]
+doc = [
+    "sphinx",
+    "shibuya",
+    "myst-parser",
+]
+
+[project.urls]
+Homepage = "https://github.com/PyLops/pylops-benchmarks"
+Issues = "https://github.com/PyLops/pylops-benchmarks/issues"
+
+[tool.hatch]
+version.source = "vcs"
+
+[tool.hatch.build]
+exclude = [
+  ".*",
+  "benchmarks",
+  "docs",
+  "results",
+  "scripts",
+  "tests",
+]
+
+[tool.hatch.build.hooks.vcs]
+version-file = "pylops_bench/version.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["pylops_bench"]
+
+[tool.hatch.build.targets.sdist]
+exclude = [".github"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
