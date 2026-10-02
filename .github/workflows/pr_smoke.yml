@@ -1,0 +1,79 @@
+name: PR smoke test
+
+on:
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: pr-smoke-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+env:
+  PYTHON_VERSION: "3.12"
+  # fail loudly if any solver errors
+  BENCHOPT_RAISE_ON_ERROR: "1"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          enable-cache: true
+      - name: Install
+        run: uv sync --locked --all-groups
+      - name: Tests
+        run: uv run pytest -v
+      - name: Build docs
+        run: uv run sphinx-build -W docs docs/_build/html
+
+  find:
+    runs-on: ubuntu-latest
+    outputs:
+      dirs: ${{ steps.find.outputs.dirs }}
+      found: ${{ steps.find.outputs.found }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: find
+        run: >
+          python3 .github/scripts/find_benchmarks.py
+          --base origin/${{ github.base_ref }}
+
+  benchmark:
+    needs: find
+    if: needs.find.outputs.found == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        benchmark: ${{ fromJSON(needs.find.outputs.dirs) }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          enable-cache: true
+      - name: Install
+        run: uv sync --locked
+      # --skip-env: dependencies are managed by uv, so skip the tests that
+      # make BenchOpt create and install conda environments
+      - name: benchopt test
+        run: uv run benchopt test benchmarks/${{ matrix.benchmark }} --skip-env
+      - name: benchopt run (single repetition)
+        run: >
+          uv run benchopt run benchmarks/${{ matrix.benchmark }}
+          -r 1 --no-plot --no-display --no-cache
+          --output "$RUNNER_TEMP/${{ matrix.benchmark }}.csv"
+      - name: Collect results (dry run)
+        run: >
+          uv run python scripts/collect_results.py ${{ matrix.benchmark }}
+          "$RUNNER_TEMP/${{ matrix.benchmark }}.csv" --dry-run

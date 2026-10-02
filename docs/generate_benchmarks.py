@@ -1,0 +1,203 @@
+"""Sphinx extension generating one page per benchmark from ``results/*.csv``.
+
+At ``builder-inited`` it writes, in ``auto_benchmarks/``:
+
+- ``index.md``: a summary table with the best solver of every benchmark;
+- ``<benchmark>.md``: the benchmark README followed by one leaderboard per
+  dataset configuration, sorted by PSNR.
+"""
+
+from __future__ import annotations
+
+import re
+import shutil
+from pathlib import Path
+
+import pandas as pd
+
+OUTDIR = "auto_benchmarks"
+NAME_RE = re.compile(r"""^\s*name\s*=\s*["'](.+?)["']""", re.MULTILINE)
+
+
+def _fmt(value) -> str:
+    if pd.isna(value):
+        return ""
+    if isinstance(value, float):
+        return f"{value:g}"
+    return str(value)
+
+
+def _params(row: pd.Series, prefix: str) -> str:
+    items = [
+        f"{col[len(prefix) :]}={_fmt(row[col])}"
+        for col in row.index
+        if col.startswith(prefix) and not pd.isna(row[col])
+    ]
+    return ", ".join(items)
+
+
+def _escape(text: str) -> str:
+    return text.replace("|", "\\|")
+
+
+def _solver_files(bench_dir: Path) -> dict[str, str]:
+    """Map solver names to their file names, read from the class ``name``."""
+    files = {}
+    for path in sorted((bench_dir / "solvers").glob("*.py")):
+        match = NAME_RE.search(path.read_text())
+        if match:
+            files[match.group(1)] = path.name
+    return files
+
+
+def _readme(bench_dir: Path) -> tuple[str, str]:
+    """Return title and body of the benchmark README."""
+    readme = bench_dir / "README.md"
+    title = bench_dir.name.replace("_", " ").capitalize()
+    if not readme.exists():
+        return title, ""
+    lines = readme.read_text().splitlines()
+    if lines and lines[0].startswith("# "):
+        title, lines = lines[0][2:].strip(), lines[1:]
+    return title, "\n".join(lines).strip()
+
+
+def _table(header: list[str], rows: list[list[str]]) -> str:
+    out = ["| " + " | ".join(header) + " |"]
+    out.append("|" + "|".join(" --- " for _ in header) + "|")
+    out += ["| " + " | ".join(_escape(c) for c in row) + " |" for row in rows]
+    return "\n".join(out)
+
+
+def _leaderboard(df: pd.DataFrame, solver_url) -> str:
+    df = df.sort_values("PSNR", ascending=False)
+    rows = []
+    for rank, (_, row) in enumerate(df.iterrows(), start=1):
+        url = solver_url(row["solver"])
+        solver = f"[{row['solver']}]({url})" if url else row["solver"]
+        rows.append(
+            [
+                str(rank),
+                solver,
+                f"`{_params(row, 'solver_param_')}`",
+                f"{row['MAE']:.4g}",
+                f"{row['PSNR']:.2f}",
+                f"{row['time_s']:.3f}",
+                _fmt(row.get("pylops_version")),
+                _fmt(row.get("run_date")),
+            ]
+        )
+    header = [
+        "Rank",
+        "Solver",
+        "Parameters",
+        "MAE",
+        "PSNR [dB]",
+        "Time [s]",
+        "PyLops",
+        "Run date (UTC)",
+    ]
+    return _table(header, rows)
+
+
+def _benchmark_page(app, bench_dir: Path, df: pd.DataFrame | None) -> str:
+    cfg = app.config
+    name = bench_dir.name
+    title, body = _readme(bench_dir)
+    files = _solver_files(bench_dir)
+    blob = f"{cfg.github_url}/blob/{cfg.github_branch}"
+    tree = f"{cfg.github_url}/tree/{cfg.github_branch}/benchmarks/{name}"
+
+    def solver_url(solver):
+        if solver not in files:
+            return None
+        return f"{blob}/benchmarks/{name}/solvers/{files[solver]}"
+
+    lines = [f"# {title}", "", body, "", f"Source: [`benchmarks/{name}`]({tree})."]
+    lines += ["", "## Results", ""]
+    if df is None or df.empty:
+        lines.append("This benchmark has not been run yet.")
+        return "\n".join(lines) + "\n"
+
+    csv_url = f"{blob}/results/{name}.csv"
+    lines += [f"Raw results: [`results/{name}.csv`]({csv_url}).", ""]
+    dataset_cols = ["objective", "dataset"] + [
+        c for c in df.columns if c.startswith("dataset_param_")
+    ]
+    groups = df.groupby(dataset_cols, dropna=False, sort=True)
+    for _, group in groups:
+        first = group.iloc[0]
+        params = _params(first, "dataset_param_")
+        lines += [f"### {first['dataset']}", ""]
+        if params:
+            lines += [f"Dataset parameters: `{params}`", ""]
+        lines += [_leaderboard(group, solver_url), ""]
+    return "\n".join(lines) + "\n"
+
+
+def _summary(entries: list[tuple[str, str, pd.DataFrame | None]]) -> str:
+    rows = []
+    for name, title, df in entries:
+        link = f"[{title}]({name}.md)"
+        if df is None or df.empty:
+            rows.append([link, "-", "-", "-", "-", "not run yet"])
+            continue
+        best = df.loc[df["PSNR"].idxmax()]
+        rows.append(
+            [
+                link,
+                str(df["solver"].nunique()),
+                str(len(df)),
+                best["solver"],
+                f"{best['PSNR']:.2f}",
+                _fmt(df["run_date"].max()),
+            ]
+        )
+    header = [
+        "Benchmark",
+        "Solvers",
+        "Configurations",
+        "Best solver (PSNR)",
+        "Best PSNR [dB]",
+        "Last run (UTC)",
+    ]
+    return _table(header, rows)
+
+
+def generate(app) -> None:
+    cfg = app.config
+    outdir = Path(app.srcdir) / OUTDIR
+    shutil.rmtree(outdir, ignore_errors=True)
+    outdir.mkdir(parents=True)
+
+    entries = []
+    bench_dirs = sorted(
+        p.parent
+        for p in Path(cfg.benchmarks_dir).glob("*/objective.py")
+        if not p.parent.name.startswith("_")
+    )
+    for bench_dir in bench_dirs:
+        csv = Path(cfg.results_dir) / f"{bench_dir.name}.csv"
+        df = pd.read_csv(csv) if csv.exists() else None
+        page = _benchmark_page(app, bench_dir, df)
+        (outdir / f"{bench_dir.name}.md").write_text(page)
+        entries.append((bench_dir.name, _readme(bench_dir)[0], df))
+
+    index = ["# Benchmarks", ""]
+    if entries:
+        index += [_summary(entries), ""]
+    else:
+        index += ["No benchmarks found.", ""]
+    index += ["```{toctree}", ":hidden:", ""]
+    index += [name for name, _, _ in entries]
+    index += ["```", ""]
+    (outdir / "index.md").write_text("\n".join(index))
+
+
+def setup(app):
+    app.add_config_value("benchmarks_dir", "", "env")
+    app.add_config_value("results_dir", "", "env")
+    app.add_config_value("github_url", "", "env")
+    app.add_config_value("github_branch", "main", "env")
+    app.connect("builder-inited", generate)
+    return {"parallel_read_safe": True, "parallel_write_safe": True}
