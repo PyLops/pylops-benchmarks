@@ -8,7 +8,7 @@ Every benchmark is defined by:
 
 - a **true model** $\mathbf{x}$;
 - a PyLops **operator** $\mathbf{A}$;
-- the **data** $\mathbf{y} = \mathbf{A}\,\mathbf{x}\,(+\,\mathbf{n})$, possibly with noise $n$ drawn with a fixed
+- the **data** $\mathbf{y} = \mathbf{A}\,\mathbf{x}\,(+\,\mathbf{n})$, possibly with noise $\mathbf{n}$ drawn with a fixed
   seed.
 
 Each solver estimates $\hat{\mathbf{x}}$ from $\mathbf{y}$ and $\mathbf{A}$, and is scored against the

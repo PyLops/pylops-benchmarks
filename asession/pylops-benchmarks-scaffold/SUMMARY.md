@@ -69,15 +69,6 @@ The contract between the pieces:
 - **FISTA step size uses randomness.** It comes from an ARPACK eigenvalue estimate, so both FISTA solvers pass a seeded `eigsdict=dict(v0=...)` to keep runs reproducible.
 - **BenchOpt `test` under uv.** Its install tests try to create conda environments and need `pip`, which uv environments do not include. Use `benchopt test <dir> --skip-env`.
 - **BenchOpt result cache.** BenchOpt caches results in `benchmarks/<name>/__cache__`; use `--no-cache` for fresh timings. CI always passes it.
-- **The problem is easy for smoothing.** The notebook's events have very gentle dips (under 0.3 samples per trace), so spatial smoothing wins this setup:
-
-| Solver | MAE | PSNR [dB] |
-| --- | --- | --- |
-| LSQR-SecondDerivative | 0.0011 | 57.3 |
-| FISTA-FFT2D | 0.0057 | 49.1 |
-| FISTA-Radon2D | 0.0100 | 43.9 |
-
-  Steeper or curved events, or noisy datasets, would make the comparison more informative.
 
 ## Verification done
 
