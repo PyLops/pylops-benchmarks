@@ -1699,6 +1699,7 @@ dependencies = [
     { name = "numpy", version = "2.5.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
     { name = "pandas" },
     { name = "pylops" },
+    { name = "pyproximal" },
 ]
 
 [package.dev-dependencies]
@@ -1719,6 +1720,7 @@ requires-dist = [
     { name = "numpy" },
     { name = "pandas" },
     { name = "pylops" },
+    { name = "pyproximal" },
 ]
 
 [package.metadata.requires-dev]
@@ -1771,6 +1773,23 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/e4/11/b213bebff182584360cb8d17c72c1677fec5c5c228de439e63bcf8ab1c8f/pyparsing-3.3.3.tar.gz", hash = "sha256:928ae7e20211f3b6f3915a72f06a0cfd29ab9d24279dd6346b6b1a7146397d36", size = 1050487, upload-time = "2026-09-20T20:59:05.609Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/38/bb/d215ee7c73b61497b28a5503f9f53523f294fcc936762b7caf90e0c1c2b5/pyparsing-3.3.3-py3-none-any.whl", hash = "sha256:ece8c00a69cf01b45d0b1dedabb469c90d8caf996d4fda40f147627a122849a4", size = 126420, upload-time = "2026-09-20T20:59:04.025Z" },
+]
+
+[[package]]
+name = "pyproximal"
+version = "0.12.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
+    { name = "numpy", version = "2.5.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
+    { name = "pylops" },
+    { name = "scipy", version = "1.17.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
+    { name = "scipy", version = "1.18.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/68/cf/5dca9c5e1d292969cda65e0a8e14cd2071a3c781157214ad619044f818c8/pyproximal-0.12.0.tar.gz", hash = "sha256:c3979e042c5324bbaaf4e19e80102cee6604a5eceec6350cdbe0445f4ccf1458", size = 359547, upload-time = "2026-04-18T20:06:02.737Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/3b/a1/cbebf2a0d96b01a855b71941675542a57fc1791540ada591e2da5f2ee527/pyproximal-0.12.0-py3-none-any.whl", hash = "sha256:b84ba73404c4428c64867a1b6079bb1f87718209d5f41e2eb17f71d47dcfde8f", size = 114021, upload-time = "2026-04-18T20:06:01.106Z" },
 ]
 
 [[package]]

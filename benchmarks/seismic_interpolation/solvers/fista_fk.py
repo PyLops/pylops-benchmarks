@@ -9,10 +9,13 @@ class Solver(BaseSolver):
     r"""Sparsity-promoting inversion in the f-k domain, solved with FISTA.
 
     .. math::
-        \min_p \|y - \Re\{Op F^H p\}\|_2^2 + \epsilon \|p\|_1,
+        \min_p \|y - \Re\{Op F^H p\}\|_2^2 + \epsilon_k \|p\|_1,
         \quad x = \Re\{F^H p\}
 
-    where :math:`F` is the 2D Fourier transform. As in
+    where :math:`F` is the 2D Fourier transform. The sparsity weight decays
+    with the iterations (continuation),
+    :math:`\epsilon_k = \max(\epsilon, \epsilon_0 \gamma^k)` with
+    :math:`\epsilon_0 = \text{eps0\_factor} \cdot \epsilon`. As in
     :func:`pylops.waveeqprocessing.SeismicInterpolation`, the restriction
     operator is rebuilt with complex dtype (from ``meta["iava"]``) so that it
     can be applied to the complex output of :math:`F^H`.
@@ -25,7 +28,9 @@ class Solver(BaseSolver):
 
     parameters = {
         "nfft": [1024],
-        "eps": [1e-2],
+        "eps": [3e-3],
+        "eps0_factor": [5.0],
+        "gamma": [0.97],
         "niter": [100],
     }
 
@@ -50,6 +55,10 @@ class Solver(BaseSolver):
             .standard_normal(self.SIop.shape[1])
             .astype(self.SIop.dtype)
         )
+        # threshold multiplier: eps0_factor * gamma**k, never below 1
+        self.decay = np.maximum(
+            1.0, self.eps0_factor * self.gamma ** np.arange(self.niter)
+        )
 
     def run(self, _):
         self.p = fista(
@@ -58,6 +67,7 @@ class Solver(BaseSolver):
             niter=self.niter,
             eps=self.eps,
             eigsdict=self.eigsdict,
+            decay=self.decay,
         )[0]
 
     def get_result(self):
