@@ -1,0 +1,4 @@
+objective,dataset,solver,dataset_param_noise_std,dataset_param_perc_subsampling,dataset_param_seed,solver_param_damp,solver_param_eps,solver_param_epsR,solver_param_nfft,solver_param_niter,solver_param_npx,solver_param_pxmax,MAE,PSNR,time_s,n_repetitions,run_date,pylops_version,benchopt_version
+Reconstruction,Linear events,FISTA-FFT2D,0.0,0.4,42,,0.01,,1024.0,100,,,0.0044411767041349,51.18839151503145,11.306094725,3,2026-10-02 21:14:53,2.8.0,1.10.0
+Reconstruction,Linear events,FISTA-Radon2D,0.0,0.4,42,,0.8,,,100,200.0,0.002,0.0044636161704971,49.73589220505378,5.678188512999995,3,2026-10-02 21:14:53,2.8.0,1.10.0
+Reconstruction,Linear events,LSQR-SecondDerivative,0.0,0.4,42,0.01,,0.3162277660168379,,100,,,0.0075633661563638,38.11031917602183,0.0505253059999972,3,2026-10-02 21:14:53,2.8.0,1.10.0
