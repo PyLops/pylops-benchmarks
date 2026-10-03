@@ -21,6 +21,7 @@ dependencies = [
     "numpy",
     "pandas",
     "pyproximal",
+    "PyWavelets",
 ]
 dynamic = ["version"]
 
