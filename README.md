@@ -18,12 +18,14 @@ published at https://pylops.github.io/pylops-benchmarks.
 
 ## Quick start
 
-The project is managed with [uv](https://docs.astral.sh/uv/):
+The project is managed with [uv](https://docs.astral.sh/uv/). Run the following:
 
 ```bash
-uv sync --all-groups
-uv run benchopt run benchmarks/seismic_interpolation --no-plot
+uv sync --all-groups  # only once
+uv run benchopt run benchmarks/{BENCH} --no-plot
 ```
+
+where `${BENCH}` is the name of the benchmark to run.
 
 ## Build the website locally
 
@@ -33,7 +35,6 @@ The website is a Sphinx site in `docs/`, generated from the CSV files in
 ```bash
 uv sync --group doc
 uv run sphinx-build -W docs docs/_build/html
-open docs/_build/html/index.html   # macOS; use xdg-open on Linux
 ```
 
 To preview the pages with results from a local run instead of the committed
