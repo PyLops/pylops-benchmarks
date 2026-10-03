@@ -17,8 +17,9 @@ true model with PyLops' Mean Absolute Error
 and Peak Signal-to-Noise Ratio
 ([`pylops.utils.metrics.psnr`](https://pylops.readthedocs.io/en/stable/api/generated/pylops.utils.metrics.psnr.html),
 computed over the full dynamic range of the true model). Times are the
-median wall-clock time of the inversion only (operator construction is
-excluded) over the repetitions of a run.
+wall-clock time of the inversion only (operator construction is
+excluded); when a benchmark is run with several repetitions, the median
+time is reported.
 
 Benchmarks are run with [BenchOpt](https://benchopt.github.io) on GitHub
 Actions and their results are stored as CSV files in the
