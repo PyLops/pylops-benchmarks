@@ -39,7 +39,14 @@ uv sync --all-groups      # creates .venv with the package, tests (dev) and docs
 4. Keep `objective.py` as in the template: metrics are always PyLops MAE and
    PSNR via `pylops_bench.metrics.compute_metrics`. Set `test_config` to the
    name of your dataset.
-5. Describe the problem in `README.md` (its first heading is the page title).
+5. Describe the problem in `README.md` (its first heading is the page title),
+   generically, as it applies to every dataset. Describe each dataset (sizes,
+   sampling, content) in its class docstring, which the website shows in the
+   results section of that dataset (write it in Markdown).
+6. Optionally, add a `plot(self, x_true, Op, y, meta)` method to each dataset
+   that returns a matplotlib `Figure` of the true model and the data (import
+   matplotlib inside the method). The website draws it for every dataset
+   configuration in the result table and shows it above its leaderboard.
 
 ## Add a solver
 

@@ -1,7 +1,6 @@
 # Seismic interpolation
 
-Reconstruction of a 2D seismic gather (140 traces x 200 time samples, three
-linear events) from a random subset of its traces.
+Reconstruction of a 2D seismic gather from a random subset of its traces.
 
 - **True model**: the fully sampled gather.
 - **Operator**: `pylops.Restriction` along the spatial axis, keeping

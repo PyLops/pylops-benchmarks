@@ -6,7 +6,13 @@ from pylops.utils.wavelets import ricker
 
 
 class Dataset(BaseDataset):
-    """2D gather with three linear events, randomly subsampled in space."""
+    """2D gather with three linear events, randomly subsampled in space.
+
+    The gather has 140 traces (2 m spacing) and 200 time samples (4 ms
+    sampling). It contains three linear events with intercept times 0.2, 0.4
+    and 0.5 s, angles 0, 70 and -80 degrees (velocity 800 m/s) and amplitudes
+    1, -2 and 0.5, all with a 20 Hz Ricker wavelet.
+    """
 
     name = "Linear events"
 
@@ -58,3 +64,28 @@ class Dataset(BaseDataset):
             iava=iava,
         )
         return dict(x_true=x, Op=Rop, y=y, meta=meta)
+
+    def plot(self, x_true, Op, y, meta):
+        """True model and data (missing traces shown as zeros)."""
+        import matplotlib.pyplot as plt
+
+        xaxis, taxis = meta["xaxis"], meta["taxis"]
+        yfull = (Op.H @ y).reshape(meta["dims"])
+        clip = np.abs(x_true).max()
+        opts = dict(
+            cmap="gray",
+            vmin=-clip,
+            vmax=clip,
+            aspect="auto",
+            interpolation="none",
+            extent=(xaxis[0], xaxis[-1], taxis[-1], taxis[0]),
+        )
+
+        fig, axs = plt.subplots(1, 2, sharey=True, figsize=(9, 4))
+        for ax, d, title in zip(axs, (x_true, yfull), ("True model", "Data")):
+            ax.imshow(d.T, **opts)
+            ax.set_title(title)
+            ax.set_xlabel("x [m]")
+        axs[0].set_ylabel("t [s]")
+        fig.tight_layout()
+        return fig

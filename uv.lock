@@ -1707,6 +1707,7 @@ dev = [
     { name = "pytest" },
 ]
 doc = [
+    { name = "matplotlib" },
     { name = "myst-parser" },
     { name = "shibuya" },
     { name = "sphinx", version = "9.0.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
@@ -1726,6 +1727,7 @@ requires-dist = [
 [package.metadata.requires-dev]
 dev = [{ name = "pytest" }]
 doc = [
+    { name = "matplotlib" },
     { name = "myst-parser" },
     { name = "shibuya" },
     { name = "sphinx" },
