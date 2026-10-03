@@ -25,10 +25,6 @@ The project is managed with [uv](https://docs.astral.sh/uv/):
 uv sync --all-groups      # creates .venv with the package, tests (dev) and docs (doc) deps
 ```
 
-Prefix commands with `uv run` (or activate `.venv`). Add dependencies with
-`uv add <pkg>` (or `uv add --group dev|doc <pkg>`) so that `uv.lock` stays in
-sync; CI installs with `uv sync --locked`.
-
 ## Add a new problem
 
 1. Copy `benchmarks/_template` to `benchmarks/<name>`.
@@ -36,11 +32,10 @@ sync; CI installs with `uv sync --locked`.
    `dict(x_true=..., Op=..., y=..., meta=...)`, where `meta` contains at least
    `dims` (the shape of the model) and anything solvers need to build their
    own operators (axes, sampling, ...).
-3. **All randomness must be seeded**: expose a `seed` parameter and draw the
-   operator randomness (e.g. subsampling masks) and the noise from
-   `np.random.default_rng` generators spawned from it
-   (`np.random.SeedSequence(seed).spawn(...)`), so that changing the noise
-   level never changes the operator.
+3. **All randomness must be seeded**: expose a `seed` parameter and draw any
+   operator randomness and the noise from `np.random.default_rng` generators 
+   spawned from it (`np.random.SeedSequence(seed).spawn(...)`), so that 
+   changing the noise level never changes the operator.
 4. Keep `objective.py` as in the template: metrics are always PyLops MAE and
    PSNR via `pylops_bench.metrics.compute_metrics`. Set `test_config` to the
    name of your dataset.
@@ -59,9 +54,6 @@ of solver and regularizer/preconditioner:
 - if the solver uses randomness (e.g. a starting vector for power
   iterations), seed it.
 
-Check composite operators with a dot-test (`pylops.utils.dottest`) while
-developing a new solver.
-
 ## Run locally
 
 ```bash
@@ -72,7 +64,7 @@ uv run pytest                                     # repository tests
 ```
 
 `--skip-env` skips BenchOpt's tests that create conda environments to
-install requirements (dependencies are managed by uv here). BenchOpt caches
+install requirements (dependencies are managed by `uv` here). BenchOpt caches
 results in `benchmarks/<name>/__cache__`: pass `--no-cache`
 to force a fresh run (e.g. to get new timings).
 

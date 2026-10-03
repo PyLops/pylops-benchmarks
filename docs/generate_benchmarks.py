@@ -79,24 +79,12 @@ def _leaderboard(df: pd.DataFrame, solver_url) -> str:
             [
                 str(rank),
                 solver,
-                f"`{_params(row, 'solver_param_')}`",
                 f"{row['MAE']:.4g}",
                 f"{row['PSNR']:.2f}",
                 f"{row['time_s']:.3f}",
-                _fmt(row.get("pylops_version")),
-                _fmt(row.get("run_date")),
             ]
         )
-    header = [
-        "Rank",
-        "Solver",
-        "Parameters",
-        "MAE",
-        "PSNR [dB]",
-        "Time [s]",
-        "PyLops",
-        "Run date (UTC)",
-    ]
+    header = ["Rank", "Solver", "MAE", "PSNR [dB]", "Time [s]"]
     return _table(header, rows)
 
 
@@ -140,7 +128,7 @@ def _summary(entries: list[tuple[str, str, pd.DataFrame | None]]) -> str:
     for name, title, df in entries:
         link = f"[{title}]({name}.md)"
         if df is None or df.empty:
-            rows.append([link, "-", "-", "-", "-", "not run yet"])
+            rows.append([link, "-", "-", "-", "not run yet"])
             continue
         best = df.loc[df["PSNR"].idxmax()]
         rows.append(
@@ -150,7 +138,6 @@ def _summary(entries: list[tuple[str, str, pd.DataFrame | None]]) -> str:
                 str(len(df)),
                 best["solver"],
                 f"{best['PSNR']:.2f}",
-                _fmt(df["run_date"].max()),
             ]
         )
     header = [
@@ -159,7 +146,6 @@ def _summary(entries: list[tuple[str, str, pd.DataFrame | None]]) -> str:
         "Configurations",
         "Best solver (PSNR)",
         "Best PSNR [dB]",
-        "Last run (UTC)",
     ]
     return _table(header, rows)
 
