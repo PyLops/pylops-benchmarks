@@ -15,7 +15,12 @@ def compute_fold(timings, dt, nt):
 
 
 class Dataset(BaseDataset):
-    """Mobil AVO common-receiver gather, continuously blended."""
+    """Mobil AVO common-receiver gather, continuously blended.
+
+    The gather has 60 sources and 960 time samples (4 ms sampling). Sources
+    are fired every ``overlap * nt`` samples with a random jitter of +/-1 s in
+    the ignition times.
+    """
 
     name = "Mobil AVO"
 

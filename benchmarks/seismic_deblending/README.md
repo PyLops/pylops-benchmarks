@@ -1,12 +1,11 @@
 # Seismic deblending
 
-Deblending of a continuously blended common-receiver gather from the Mobil AVO
-dataset (60 sources x 960 time samples, `dt=0.004`).
+Deblending of a continuously blended common-receiver gather.
 
 - **True model**: the unblended gather.
 - **Operator**: `pylops.waveeqprocessing.BlendingContinuous`, with sources
-  fired every `overlap * nt` samples plus a random jitter of +/-1 s in the
-  ignition times (selected with a fixed `seed`).
+  fired every `overlap * nt` samples plus a random jitter in the ignition
+  times (drawn with a fixed `seed`).
 - **Data**: the blended (continuous) recording, plus optional white Gaussian
   noise (`noise_std`, also drawn with a fixed seed).
 
