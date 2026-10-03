@@ -49,6 +49,26 @@ def _params(row: pd.Series, prefix: str) -> str:
     return ", ".join(items)
 
 
+def _varying_params(df: pd.DataFrame) -> dict[str, list[str]]:
+    """Map every solver to the solver parameters taking more than one value
+    among its rows, i.e. those telling its entries apart."""
+    cols = [c for c in df.columns if c.startswith("solver_param_")]
+    return {
+        solver: [c for c in cols if sub[c].nunique() > 1]
+        for solver, sub in df.groupby("solver")
+    }
+
+
+def _solver_params(row: pd.Series, varying: dict[str, list[str]]) -> str:
+    prefix = "solver_param_"
+    items = [
+        f"{col[len(prefix) :]}={_fmt(row[col])}"
+        for col in varying.get(row["solver"], [])
+        if not pd.isna(row[col])
+    ]
+    return ", ".join(items)
+
+
 def _escape(text: str) -> str:
     return text.replace("|", "\\|")
 
@@ -127,7 +147,7 @@ def _table(header: list[str], rows: list[list[str]]) -> str:
     return "\n".join(out)
 
 
-def _leaderboard(df: pd.DataFrame, solver_url) -> str:
+def _leaderboard(df: pd.DataFrame, solver_url, varying) -> str:
     df = df.sort_values("PSNR", ascending=False)
     rows = []
     for rank, (_, row) in enumerate(df.iterrows(), start=1):
@@ -137,12 +157,16 @@ def _leaderboard(df: pd.DataFrame, solver_url) -> str:
             [
                 str(rank),
                 solver,
+                _solver_params(row, varying),
                 f"{row['MAE']:.4g}",
                 f"{row['PSNR']:.2f}",
                 f"{row['time_s']:.3f}",
             ]
         )
-    header = ["Rank", "Solver", "MAE", "PSNR [dB]", "Time [s]"]
+    header = ["Rank", "Solver", "Parameters", "MAE", "PSNR [dB]", "Time [s]"]
+    if not any(row[2] for row in rows):  # no parameter tells entries apart
+        header.pop(2)
+        rows = [row[:2] + row[3:] for row in rows]
     return _table(header, rows)
 
 
@@ -172,6 +196,7 @@ def _benchmark_page(
     dataset_cols = ["objective", "dataset"] + [
         c for c in df.columns if c.startswith("dataset_param_")
     ]
+    varying = _varying_params(df)
     groups = df.groupby(dataset_cols, dropna=False, sort=True)
     for _, group in groups:
         first = group.iloc[0]
@@ -185,7 +210,7 @@ def _benchmark_page(
         figure = None if cls is None else _figure(cls, bench_dir, first, figdir)
         if figure:
             lines += [f"![True model and data of {first['dataset']}]({figure})", ""]
-        lines += [_leaderboard(group, solver_url), ""]
+        lines += [_leaderboard(group, solver_url, varying), ""]
     return "\n".join(lines) + "\n"
 
 
@@ -197,12 +222,14 @@ def _summary(entries: list[tuple[str, str, pd.DataFrame | None]]) -> str:
             rows.append([link, "-", "-", "-", "not run yet"])
             continue
         best = df.loc[df["PSNR"].idxmax()]
+        best_params = _solver_params(best, _varying_params(df))
+        best_solver = f"{best['solver']} ({best_params})" if best_params else best["solver"]
         rows.append(
             [
                 link,
                 str(df["solver"].nunique()),
                 str(len(df)),
-                best["solver"],
+                best_solver,
                 f"{best['PSNR']:.2f}",
             ]
         )
