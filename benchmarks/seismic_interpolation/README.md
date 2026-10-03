@@ -18,6 +18,11 @@ Solvers compared:
 | `OMP-Radon2D` | Greedy L0 inversion in the linear Radon domain, solved with Orthogonal Matching Pursuit |
 | `AIHT-Radon2D` | L0-regularized inversion in the linear Radon domain, solved with Accelerated Iterative Hard Thresholding (PyProximal) with a decaying sparsity weight |
 | `POCS-L0-Radon2D` | L0-regularized inversion in the linear Radon domain with exact data consistency, alternating hard thresholding with a decaying sparsity weight and projection onto the data-consistent affine set (PyProximal HQS) |
+| `OMP-FFT2D` | Greedy L0 inversion in the f-k domain, solved with Orthogonal Matching Pursuit |
+| `AIHT-FFT2D` | L0-regularized inversion in the f-k domain, solved with Accelerated Iterative Hard Thresholding (PyProximal) with a decaying sparsity weight |
+| `POCS-L0-FFT2D` | L0-regularized inversion in the f-k domain with exact data consistency, alternating hard thresholding with a decaying sparsity weight and projection onto the data-consistent affine set (PyProximal HQS) |
 
 All Radon solvers use the same dictionary, `pylops.signalprocessing.FourierRadon2D`
-with a linear kernel.
+with a linear kernel. All f-k solvers use `pylops.signalprocessing.FFT2D` (adjoint)
+as the dictionary, with the restriction operator rebuilt in complex dtype and the
+real part taken after it.
