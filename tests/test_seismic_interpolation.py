@@ -42,3 +42,15 @@ def test_objective(bench_loader, data):
     metrics = objective.evaluate_result(data["x_true"])
     assert metrics["MAE"] == 0.0
     assert np.isinf(metrics["PSNR"])
+
+
+def test_dataset_plot(bench_loader, data):
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    from matplotlib.figure import Figure
+
+    fig = bench_loader(DATASET, "Dataset").plot(**data)
+    assert isinstance(fig, Figure)
+    plt.close(fig)

@@ -32,6 +32,7 @@ doc = [
     "sphinx",
     "shibuya",
     "myst-parser",
+    "matplotlib",
 ]
 
 [project.urls]

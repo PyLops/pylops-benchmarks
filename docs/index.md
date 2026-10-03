@@ -11,7 +11,7 @@ Every benchmark is defined by:
 - the **data** $\mathbf{y} = \mathbf{A}\,\mathbf{x}\,(+\,\mathbf{n})$, possibly with noise $\mathbf{n}$ drawn with a fixed
   seed.
 
-Each solver estimates $\hat{\mathbf{x}}$ from $\mathbf{y}$ and $\mathbf{A}$, and is scored against the
+Each solver estimates $\hat{\mathbf{x}}$ from $\mathbf{y}$ and $\mathbf{A}$, and scores it against the
 true model with PyLops' Mean Absolute Error
 ([`pylops.utils.metrics.mae`](https://pylops.readthedocs.io/en/stable/api/generated/pylops.utils.metrics.mae.html))
 and Peak Signal-to-Noise Ratio

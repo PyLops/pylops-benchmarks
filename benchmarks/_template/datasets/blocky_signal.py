@@ -33,3 +33,14 @@ class Dataset(BaseDataset):
 
         y = Op @ x + self.noise_std * rng_noise.standard_normal(self.n)
         return dict(x_true=x, Op=Op, y=y, meta=dict(dims=(self.n,)))
+
+    def plot(self, x_true, Op, y, meta):
+        """True model and data, shown on the benchmark page (optional)."""
+        import matplotlib.pyplot as plt
+
+        fig, ax = plt.subplots(figsize=(9, 3))
+        ax.plot(x_true, "k", lw=2, label="True model")
+        ax.plot(y, "r", lw=1, label="Data")
+        ax.legend()
+        fig.tight_layout()
+        return fig
