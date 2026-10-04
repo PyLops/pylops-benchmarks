@@ -1,0 +1,8 @@
+objective,dataset,solver,dataset_param_noise_std,dataset_param_seed,solver_param_damp,solver_param_eps,solver_param_epsI,solver_param_epsR,solver_param_mu,solver_param_niter,solver_param_niter_inner,solver_param_niter_outer,MAE,PSNR,time_s,n_repetitions,run_date,pylops_version,benchopt_version
+Reconstruction,Marmousi,ADMM-TV,0.1,10,,0.06,,,,350.0,,,0.0589168947714827,23.590268703823188,80.841256996,1,2026-10-04 15:08:41,2.8.0,1.10.0
+Reconstruction,Marmousi,ADMML2-TV,0.1,10,,0.03,,,,250.0,,,0.0594444425796262,23.677196361704294,83.19863640400001,1,2026-10-04 15:08:41,2.8.0,1.10.0
+Reconstruction,Marmousi,LSQR-Laplacian,0.1,10,0.01,,0.04,3.0,,5000.0,,,0.0903923147586953,19.896576230392824,37.08278662499998,1,2026-10-04 15:08:41,2.8.0,1.10.0
+Reconstruction,Marmousi,LSTSQ-TraceByTrace,0.1,10,,,0.04,,,,,,0.1198677817621235,17.4971456119199,0.1149330140000302,1,2026-10-04 15:08:41,2.8.0,1.10.0
+Reconstruction,Marmousi,LinearizedADMM-TV,0.1,10,,0.05,,,,1600.0,,,0.0540843312926771,24.288277037172744,76.94581592400002,1,2026-10-04 15:08:41,2.8.0,1.10.0
+Reconstruction,Marmousi,PrimalDual-TV,0.1,10,,0.035,,,,750.0,,,0.0533199586587347,24.54684487109716,74.97681248599997,1,2026-10-04 15:08:41,2.8.0,1.10.0
+Reconstruction,Marmousi,SplitBregman-Blocky,0.1,10,,0.05,,0.4,0.1,,10.0,95.0,0.0580569677636055,23.689304760392883,83.75663768600003,1,2026-10-04 15:08:41,2.8.0,1.10.0
