@@ -1,0 +1,3 @@
+# BenchOpt per-benchmark settings (not the `benchopt run --config` file,
+# see run_config.yml for that)
+data_home: "./data"
