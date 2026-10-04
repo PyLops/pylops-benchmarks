@@ -1,0 +1,3 @@
+# Configuration used by CI: benchopt run <dir> --config <dir>/run_config.yml
+n-repetitions: 1
+timeout: 30m
