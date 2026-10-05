@@ -76,7 +76,6 @@ The user asked for HQS with TV and wavelet sparsity, and picked the extra sugges
 | LinearizedADMM-NonconvexTV (ETP) | eps 0.035, gamma 2, tau 4, niter 50 | 27.58 | 2.5 s |
 | PrimalDual-TV-DWT2D | db4 level 4, eps_tv 0.0714, eps_w 0.0168, tau 0.2, niter 50 | 27.57 | 1.1 s |
 | LinearizedADMM-NonconvexTV (SCAD) | eps 0.07, a 12.4 | 27.56 | 0.7 s |
-| PrimalDual-HuberTV | eps 0.084, alpha 0.0025, tau 0.2, niter 50 | 27.55 | 0.35 s |
 | HQS-TV | eps 0.084, tau 30, niter 3 | 27.54 | 1.3 s |
 | LinearizedADMM-NonconvexTV (log) | eps 0.07, gamma 0.057 | 27.48 | 2.3 s |
 | FISTA-Patch2D (FFT) | nwin 32, eps 0.2, niter 100 | 26.18 | 6.6 s |
@@ -87,7 +86,7 @@ The user asked for HQS with TV and wavelet sparsity, and picked the extra sugges
 ### Findings
 
 - **HQS for denoising.** The fixed point z is exactly the TV solution with weight `eps (1 + tau)`. The solver therefore returns z and divides the weight by `1 + tau`, so `eps` means the same as in the other TV solvers and `tau` only sets the speed (30 → 3 iterations).
-- **PyProximal Huber.** `pyproximal.Huber.prox` selects the quadratic or linear branch with `|x| > alpha` instead of `|x| > alpha + tau`, which is wrong in between. Checked numerically: for x=1.5, alpha=1, tau=1 it returns 0.5, but the minimizer is 0.75. `HuberCircular` uses a single norm for the whole vector. The Huber-TV solver therefore defines its own per-pixel isotropic Huber prox, `HuberL21`, in the solver file. Worth an upstream issue.
+- **PyProximal Huber.** `pyproximal.Huber.prox` selects the quadratic or linear branch with `|x| > alpha` instead of `|x| > alpha + tau`, which is wrong in between. Checked numerically: for x=1.5, alpha=1, tau=1 it returns 0.5, but the minimizer is 0.75. `HuberCircular` uses a single norm for the whole vector. A Huber-TV solver (PrimalDual-HuberTV) with its own per-pixel isotropic Huber prox, `HuberL21`, was tuned (27.55 dB at eps 0.084, alpha 0.0025, tau 0.2, 50 iterations) but then removed at the user's request, for now. An upstream issue was drafted.
 - **Huber-TV.** Its `alpha` went to 0, so it ends up as plain TV: no PSNR gain on this image.
 - **Wavelets.** A single orthogonal wavelet in analysis form gives exactly soft shrinkage, so `PrimalDual-DWT2D` only runs the stacked haar+db4 prior. All wavelet priors stay about 2 dB below TV, and adding db4 to TV gains only +0.03 dB.
 - **Patch2D speed.** If the transform acts on all windows at once (`DCT`/`FFT2D` with `axes=(2, 3)` over a 4D array), `Patch2D` applies it in one call. ARPACK `eigs` took more than 60 s for the complex patched FFT, so the step comes from 30 seeded power iterations with a 5 % safety margin (`pylops.optimization.eigs.power_iteration` is unseeded). The FFT solver went from 96 s to under 7 s.
@@ -97,7 +96,7 @@ The user asked for HQS with TV and wavelet sparsity, and picked the extra sugges
 
 - `uv run pytest`: 30 passed.
 - `uv run benchopt test benchmarks/denoising --skip-env`: 56 passed, 14 skipped.
-- `uv run benchopt run benchmarks/denoising -r 1 --no-cache`: all 13 solvers (17 configurations) run. `collect_results.py` writes the table to a temporary results directory.
+- `uv run benchopt run benchmarks/denoising -r 1 --no-cache`: all 13 solvers (17 configurations) run (before PrimalDual-HuberTV was removed). `collect_results.py` writes the table to a temporary results directory.
 - `uv run sphinx-build -W docs ...` succeeds, both with those results (leaderboard and dataset figure rendered) and without them.
 
 ## Follow-ups

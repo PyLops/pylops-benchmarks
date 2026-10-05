@@ -19,7 +19,6 @@ Solvers compared:
 | `ProximalGradient-TV` | Isotropic total variation regularization, solved with the proximal gradient method (PyProximal) |
 | `HQS-TV` | Isotropic total variation regularization, solved with half quadratic splitting (PyProximal) |
 | `PrimalDual-TV` | Isotropic total variation regularization, solved with the primal-dual algorithm (PyProximal) |
-| `PrimalDual-HuberTV` | Isotropic Huber total variation (quadratic for small gradients, TV for large ones), solved with the primal-dual algorithm (PyProximal) |
 | `FISTA-DWT2D` | L1 (soft thresholding) or L0 (hard thresholding) sparsity of the wavelet coefficients (synthesis, i.e. wavelet shrinkage), solved with FISTA |
 | `PrimalDual-DWT2D` | L1 sparsity of the image in one or more wavelet domains (analysis, e.g. Haar, db4 or both stacked), solved with the primal-dual algorithm (PyProximal) |
 | `PrimalDual-TV-DWT2D` | Isotropic total variation plus L1 sparsity in the wavelet domain, solved with the primal-dual algorithm (PyProximal) |
