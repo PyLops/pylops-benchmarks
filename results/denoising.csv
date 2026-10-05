@@ -1,0 +1,17 @@
+objective,dataset,solver,dataset_param_noise_level,dataset_param_seed,solver_param_eps,solver_param_epsR,solver_param_eps_tv,solver_param_eps_w,solver_param_gamma,solver_param_level,solver_param_mu,solver_param_niter,solver_param_niter_inner,solver_param_niter_outer,solver_param_niter_tv,solver_param_nwin,solver_param_penalty,solver_param_rtol_tv,solver_param_tau,solver_param_threshkind,solver_param_transform,solver_param_wavelet,solver_param_wavelets,MAE,PSNR,time_s,n_repetitions,run_date,pylops_version,benchopt_version
+Denoising,Ascent,FISTA-DWT2D,0.2,0,0.13,,,,,3.0,,1.0,,,,,,,,hard,,db4,,0.03904504156828,24.72827999529848,0.0304467779999981,1,2026-10-05 22:13:07,2.8.0,1.10.0
+Denoising,Ascent,FISTA-DWT2D,0.2,0,0.34,,,,,5.0,,1.0,,,,,,,,soft,,db4,,0.0401043475345369,25.07058367924829,0.0363341220000279,1,2026-10-05 22:13:07,2.8.0,1.10.0
+Denoising,Ascent,FISTA-Patch2D,0.2,0,0.183,,,,,,,100.0,,,,32.0,,,,,dct,,,0.0380707649437203,25.59691085466751,6.02292060100001,1,2026-10-05 22:13:07,2.8.0,1.10.0
+Denoising,Ascent,FISTA-Patch2D,0.2,0,0.2,,,,,,,100.0,,,,32.0,,,,,fft,,,0.0356161830606251,26.184718173634337,12.199054687,1,2026-10-05 22:13:07,2.8.0,1.10.0
+Denoising,Ascent,HQS-TV,0.2,0,0.084,,,,,,,3.0,,,100.0,,,1e-05,30.0,,,,,0.0280628635105757,27.54460944249008,2.9539617080000085,1,2026-10-05 22:13:07,2.8.0,1.10.0
+Denoising,Ascent,LSQR-Gradient,0.2,0,,0.95,,,,,,10.0,,,,,,,,,,,,0.0405211147872416,25.379039487684565,0.1550977350000266,1,2026-10-05 22:13:07,2.8.0,1.10.0
+Denoising,Ascent,LinearizedADMM-NonconvexTV,0.2,0,0.035,,,,2.0,,,50.0,,,,,etp,,4.0,,,,,0.0271229499457214,27.57740491572513,3.0978234399999565,1,2026-10-05 22:13:07,2.8.0,1.10.0
+Denoising,Ascent,LinearizedADMM-NonconvexTV,0.2,0,0.07,,,,0.057,,,50.0,,,,,log,,4.0,,,,,0.0282240733915748,27.47614790648852,3.973059562999993,1,2026-10-05 22:13:07,2.8.0,1.10.0
+Denoising,Ascent,LinearizedADMM-NonconvexTV,0.2,0,0.07,,,,12.4,,,50.0,,,,,scad,,4.0,,,,,0.0280747734982107,27.557757910550706,1.005604524999967,1,2026-10-05 22:13:07,2.8.0,1.10.0
+Denoising,Ascent,LinearizedADMM-TV,0.2,0,0.07,,,,,,,50.0,,,,,,,4.0,,,,,0.0284738997529509,27.472300986733323,0.6978052090000233,1,2026-10-05 22:13:07,2.8.0,1.10.0
+Denoising,Ascent,LinearizedADMM-Tikhonov,0.2,0,0.9,,,,,,,30.0,,,,,,,4.0,,,,,0.0405387985479466,25.378865833748797,0.4234002040000177,1,2026-10-05 22:13:07,2.8.0,1.10.0
+Denoising,Ascent,PrimalDual-DWT2D,0.2,0,0.077,,,,,5.0,,50.0,,,,,,,0.5,,,,haar+db4,0.0363951118431305,25.70094729965768,1.662678287999995,1,2026-10-05 22:13:07,2.8.0,1.10.0
+Denoising,Ascent,PrimalDual-TV,0.2,0,0.084,,,,,,,50.0,,,,,,,0.2,,,,,0.0280852666166653,27.543284654372822,0.6653341759999876,1,2026-10-05 22:13:07,2.8.0,1.10.0
+Denoising,Ascent,PrimalDual-TV-DWT2D,0.2,0,,,0.0714,0.0168,,4.0,,50.0,,,,,,,0.2,,,db4,,0.0281856902594921,27.573706177331232,1.6697107449999748,1,2026-10-05 22:13:07,2.8.0,1.10.0
+Denoising,Ascent,ProximalGradient-TV,0.2,0,0.084,,,,,,,1.0,,,100.0,,,1e-05,1.0,,,,,0.0280647308856454,27.544611327959704,0.818422165999948,1,2026-10-05 22:13:07,2.8.0,1.10.0
+Denoising,Ascent,SplitBregman-TV,0.2,0,0.1,,,,,,0.1429,,1.0,20.0,,,,,,,,,,0.0284732365188312,27.47118940039825,2.1422078209999995,1,2026-10-05 22:13:07,2.8.0,1.10.0
