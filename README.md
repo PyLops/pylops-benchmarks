@@ -11,6 +11,10 @@ the true model using PyLops' MAE and PSNR.
 
 | Benchmark | Description |
 | --------- | ----------- |
+| [`image_deblurring`](benchmarks/image_deblurring) | Image deblurring |
+| [`poststack`](benchmarks/poststack) | Post-stack inversion |
+| [`prestack`](benchmarks/prestack) | Pre-stack inversion |
+| [`seismic_deblending`](benchmarks/seismic_deblending) | Deblending of a seismic gather from continously blended data |
 | [`seismic_interpolation`](benchmarks/seismic_interpolation) | Reconstruction of a seismic gather from randomly subsampled traces |
 
 Results are stored in [`results/`](results) (one CSV per benchmark) and
