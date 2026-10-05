@@ -11,6 +11,7 @@ the true model using PyLops' MAE and PSNR.
 
 | Benchmark | Description |
 | --------- | ----------- |
+| [`denoising`](benchmarks/denoising) | Image denoising |
 | [`image_deblurring`](benchmarks/image_deblurring) | Image deblurring |
 | [`poststack`](benchmarks/poststack) | Post-stack inversion |
 | [`prestack`](benchmarks/prestack) | Pre-stack inversion |
