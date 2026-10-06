@@ -20,8 +20,9 @@ dependencies = [
     "numba",
     "numpy",
     "pandas",
-    "pyproximal",
+    "pyproximal >= 0.13.0",
     "PyWavelets",
+    "bm3d",
 ]
 dynamic = ["version"]
 
