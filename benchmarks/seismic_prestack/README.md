@@ -1,4 +1,4 @@
-# Pre-stack inversion
+# Seismic pre-stack inversion
 
 Estimation of the elastic parameters of the subsurface (P-wave velocity,
 S-wave velocity and density) from band-limited pre-stack seismic data

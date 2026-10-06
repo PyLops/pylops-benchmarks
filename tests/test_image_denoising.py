@@ -1,4 +1,4 @@
-"""Checks for the denoising benchmark.
+"""Checks for the image denoising benchmark.
 
 The dataset must be reproducible (fixed seed for the noise) and the
 objective must return the benchmark metrics.
@@ -7,7 +7,7 @@ objective must return the benchmark metrics.
 import numpy as np
 import pytest
 
-BENCH = "denoising"
+BENCH = "image_denoising"
 DATASET = f"{BENCH}/datasets/ascent.py"
 
 

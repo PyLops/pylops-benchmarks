@@ -11,12 +11,14 @@ the true model using PyLops' MAE and PSNR.
 
 | Benchmark | Description |
 | --------- | ----------- |
-| [`denoising`](benchmarks/denoising) | Image denoising |
+| [`compressive_sensing`](benchmarks/compressive_sensing) | Recovery of a sparse vector from few random measurements |
 | [`image_deblurring`](benchmarks/image_deblurring) | Image deblurring |
-| [`poststack`](benchmarks/poststack) | Post-stack inversion |
-| [`prestack`](benchmarks/prestack) | Pre-stack inversion |
+| [`image_denoising`](benchmarks/image_denoising) | Image denoising |
+| [`mri`](benchmarks/mri) | Reconstruction of an image from undersampled k-space (MRI) data |
 | [`seismic_deblending`](benchmarks/seismic_deblending) | Deblending of a seismic gather from continously blended data |
 | [`seismic_interpolation`](benchmarks/seismic_interpolation) | Reconstruction of a seismic gather from randomly subsampled traces |
+| [`seismic_poststack`](benchmarks/seismic_poststack) | Seismic post-stack inversion |
+| [`seismic_prestack`](benchmarks/seismic_prestack) | Seismic pre-stack inversion |
 
 Results are stored in [`results/`](results) (one CSV per benchmark) and
 published at https://pylops.github.io/pylops-benchmarks.
