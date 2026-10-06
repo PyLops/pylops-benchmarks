@@ -1,14 +1,15 @@
-"""Checks for the denoising benchmark.
+"""Checks for the MRI benchmark.
 
-The dataset must be reproducible (fixed seed for the noise) and the
-objective must return the benchmark metrics.
+The dataset must be reproducible (fixed seeds, with the noise drawn from a
+stream independent of the k-space mask) and the objective must return the
+benchmark metrics.
 """
 
 import numpy as np
 import pytest
 
-BENCH = "denoising"
-DATASET = f"{BENCH}/datasets/ascent.py"
+BENCH = "mri"
+DATASET = f"{BENCH}/datasets/shepp_logan.py"
 
 
 @pytest.fixture(scope="module")
@@ -19,17 +20,30 @@ def data():
 
 
 def test_dataset_is_reproducible(bench_loader):
-    d1 = bench_loader(DATASET, "Dataset", noise_level=0.2).get_data()
-    d2 = bench_loader(DATASET, "Dataset", noise_level=0.2).get_data()
+    d1 = bench_loader(DATASET, "Dataset").get_data()
+    d2 = bench_loader(DATASET, "Dataset").get_data()
+    np.testing.assert_array_equal(d1["meta"]["mask"], d2["meta"]["mask"])
     np.testing.assert_array_equal(d1["y"], d2["y"])
 
 
-def test_dataset_noise(bench_loader):
-    d0 = bench_loader(DATASET, "Dataset", noise_level=0.0).get_data()
-    d1 = bench_loader(DATASET, "Dataset", noise_level=0.2).get_data()
-    np.testing.assert_array_equal(d0["x_true"], d1["x_true"])
+def test_dataset_noise_does_not_change_mask(bench_loader):
+    d0 = bench_loader(DATASET, "Dataset", noise_std=0.0).get_data()
+    d1 = bench_loader(DATASET, "Dataset", noise_std=0.01).get_data()
+    np.testing.assert_array_equal(d0["meta"]["mask"], d1["meta"]["mask"])
     np.testing.assert_allclose(d0["y"], d0["Op"] @ d0["x_true"].ravel())
     assert not np.allclose(d0["y"], d1["y"])
+
+
+def test_dataset_mask(data):
+    mask = data["meta"]["mask"]
+    dims = data["meta"]["dims"]
+    assert mask.shape == dims
+    assert set(np.unique(mask)) == {0.0, 1.0}
+    # radial lines all go through the center of the (centered) k-space
+    assert mask[dims[0] // 2, dims[1] // 2] == 1.0
+    assert 0.05 < mask.mean() < 0.5
+    # noise only on the sampled coefficients
+    assert np.all(data["y"][mask.ravel() == 0] == 0)
 
 
 def test_dataset_shapes(data):

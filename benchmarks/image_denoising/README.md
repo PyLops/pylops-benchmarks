@@ -1,4 +1,4 @@
-# Denoising
+# Image denoising
 
 Recovery of a clean image from a version corrupted by additive random noise.
 

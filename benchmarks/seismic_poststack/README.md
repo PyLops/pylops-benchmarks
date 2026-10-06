@@ -1,4 +1,4 @@
-# Post-stack inversion
+# Seismic post-stack inversion
 
 Estimation of the acoustic impedance of the subsurface from band-limited
 post-stack seismic data.

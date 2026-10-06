@@ -7,7 +7,7 @@ component) and the objective must return the benchmark metrics.
 import numpy as np
 import pytest
 
-BENCH = "prestack"
+BENCH = "seismic_prestack"
 DATASET = f"{BENCH}/datasets/marmousi.py"
 
 pytestmark = pytest.mark.filterwarnings("ignore:A new implementation of convmtx")
