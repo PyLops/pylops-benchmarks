@@ -1,7 +1,7 @@
 # Session summary: compressive sensing and MRI benchmarks
 
 **Date:** 2026-10-05 / 2026-10-06
-**Outcome:** branch `new-benchmarks` (from `main`), PR to `main`
+**Outcome:** PR [#15](https://github.com/PyLops/pylops-benchmarks/pull/15) from branch `new-benchmarks`
 
 ## Goal
 
