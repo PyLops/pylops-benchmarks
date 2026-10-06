@@ -19,5 +19,6 @@ Solvers compared:
 | `SplitBregman-TV-DWT2D` | Anisotropic total variation plus L1 sparsity in the wavelet domain, solved with Split Bregman |
 | `PrimalDual-TV` | Isotropic total variation regularization, with or without bound constraints on the pixel values, solved with the primal-dual algorithm (PyProximal) |
 | `PrimalDual-DWT2D` | L1 sparsity of the image in one or more wavelet domains (analysis form, e.g. Haar, db4 or both stacked), solved with the primal-dual algorithm (PyProximal) |
+| `LinearizedADMM-rMS` | Relaxed Mumford-Shah (truncated quadratic) penalty on the image gradient, nonconvex, solved with the linearized ADMM (PyProximal) |
 
 All wavelet transforms are `pylops.signalprocessing.DWT2D` with 3 levels.
