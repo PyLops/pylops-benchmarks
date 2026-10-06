@@ -30,7 +30,7 @@ benchmarks/compressive_sensing/
   datasets/sparse_spikes.py  n=256, m=64, k=16, noise 0.01; Gaussian matrix with unit-norm columns
   solvers/                   LSQR, ISTA, FISTA, AA-ISTA, TwIST, IRLS, ADMM-BP, PrimalDual-BPDN, OMP, IHT
 benchmarks/mri/
-  datasets/shepp_logan.py    195x170 phantom; 30 random radial lines (~16 % of k-space); complex noise 0.01
+  datasets/shepp_logan.py    195x170 phantom; 30 random radial lines (~18 % of k-space); complex noise 0.01
   datasets/shepp_logan_phantom.npy   copied from pylops testdata
   solvers/                   ZeroFilled, FISTA-DWT2D, SplitBregman-TV, PrimalDual-TV (iso/aniso),
                              LinearizedADMM-TV (iso/aniso), PnP-ADMM-BM3D, RED-BM3D

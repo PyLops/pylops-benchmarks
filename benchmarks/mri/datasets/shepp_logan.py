@@ -23,7 +23,7 @@ def radial_mask(dims, nlines, rng):
 class Dataset(BaseDataset):
     """Shepp-Logan phantom (195 x 170 pixels, values scaled to 0-1),
     sampled in k-space along `nlines` radial lines with random angles (30
-    lines by default, about 16 % of k-space), plus complex white Gaussian
+    lines by default, about 18 % of k-space), plus complex white Gaussian
     noise on the sampled coefficients.
     """
 
