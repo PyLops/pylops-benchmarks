@@ -1,7 +1,7 @@
 objective,dataset,solver,dataset_param_noise_std,dataset_param_seed,solver_param_damp,solver_param_epsI,solver_param_epsI_rho,solver_param_epsI_vp,solver_param_epsI_vs,solver_param_epsR_rho,solver_param_epsR_vp,solver_param_epsR_vs,solver_param_eps_rho,solver_param_eps_vp,solver_param_eps_vs,solver_param_mu,solver_param_niter,solver_param_niter_inner,solver_param_niter_outer,solver_param_tau,MAE,PSNR,time_s,n_repetitions,run_date,pylops_version,benchopt_version
-Reconstruction,Marmousi,ADMML2-TV,0.05,10,,,0.22,0.055,0.11,,,,0.021,0.0075,0.0105,,55.0,,,,0.022773843359239,34.048946367344094,45.79264758800002,1,2026-10-04 21:20:31,2.8.0,1.10.0
-Reconstruction,Marmousi,LSQR-Laplacian,0.05,10,0.04,0.08,,,,2.5,0.875,1.25,,,,,2200.0,,,,0.0292871067777985,31.651978943717825,40.79299142400004,1,2026-10-04 21:20:31,2.8.0,1.10.0
-Reconstruction,Marmousi,LSTSQ-TraceByTrace,0.05,10,,,0.22,0.055,0.11,,,,,,,,,,,,0.0383499684862211,29.46710572928032,0.3106854470000257,1,2026-10-04 21:20:31,2.8.0,1.10.0
-Reconstruction,Marmousi,LinearizedADMM-TV,0.05,10,,,0.22,0.055,0.11,,,,0.07,0.024,0.035,,65.0,,,2.8,0.0263523108873726,32.484128842281606,87.58668013500002,1,2026-10-04 21:20:31,2.8.0,1.10.0
-Reconstruction,Marmousi,PrimalDual-TV,0.05,10,,,0.22,0.055,0.11,,,,0.07,0.024,0.035,,60.0,,,0.3,0.0263456783275292,32.48438053129695,79.85655574700002,1,2026-10-04 21:20:31,2.8.0,1.10.0
-Reconstruction,Marmousi,SplitBregman-Blocky,0.05,10,,,,,,0.1,0.0175,0.05,0.05,0.035,0.025,0.07,,3.0,105.0,,0.0277919152092493,32.1068006062564,84.08709019599996,1,2026-10-04 21:20:31,2.8.0,1.10.0
+Reconstruction,Marmousi,ADMML2-TV,0.05,10,,,0.22,0.055,0.11,,,,0.021,0.0075,0.0105,,55.0,,,,0.022773843359239,34.048946367344094,46.359425011000006,1,2026-10-06 21:05:20,2.8.0,1.10.0
+Reconstruction,Marmousi,LSQR-Laplacian,0.05,10,0.04,0.08,,,,2.5,0.875,1.25,,,,,2200.0,,,,0.0292871067777985,31.651978943717825,41.68472418600001,1,2026-10-06 21:05:20,2.8.0,1.10.0
+Reconstruction,Marmousi,LSTSQ-TraceByTrace,0.05,10,,,0.22,0.055,0.11,,,,,,,,,,,,0.0383499684862211,29.46710572928032,0.3193878010000048,1,2026-10-06 21:05:20,2.8.0,1.10.0
+Reconstruction,Marmousi,LinearizedADMM-TV,0.05,10,,,0.22,0.055,0.11,,,,0.07,0.024,0.035,,65.0,,,2.8,0.0263523108873726,32.484128842281606,92.062635758,1,2026-10-06 21:05:20,2.8.0,1.10.0
+Reconstruction,Marmousi,PrimalDual-TV,0.05,10,,,0.22,0.055,0.11,,,,0.07,0.024,0.035,,60.0,,,0.3,0.0263456782542318,32.4843805633957,84.730590764,1,2026-10-06 21:05:20,2.8.0,1.10.0
+Reconstruction,Marmousi,SplitBregman-Blocky,0.05,10,,,,,,0.1,0.0175,0.05,0.05,0.035,0.025,0.07,,3.0,105.0,,0.0277919152092493,32.1068006062564,87.95539278199999,1,2026-10-06 21:05:20,2.8.0,1.10.0
