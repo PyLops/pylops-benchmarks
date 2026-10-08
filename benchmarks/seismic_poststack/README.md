@@ -25,5 +25,7 @@ Solvers compared:
 | `ADMML2-TV` | Isotropic total variation regularization, solved with ADMM specialized for an L2 misfit (PyProximal) |
 | `ADMM-TV` | Total variation regularization, solved with ADMM with an iterative TV proximal operator (PyProximal) |
 | `PrimalDual-TV` | Isotropic total variation regularization, solved with the primal-dual algorithm (PyProximal) |
+| `PnP-ADMM-BM3D` | Plug-and-Play prior with the BM3D denoiser in place of the proximal operator of the regularizer, solved with ADMM (PyProximal) |
+| `RED-BM3D` | Regularization by Denoising with the BM3D denoiser, solved with fixed-point iterations (PyProximal) |
 
 All total variation solvers use `pylops.Gradient` with forward differences.
