@@ -1,12 +1,14 @@
-objective,dataset,solver,dataset_param_noise_std,dataset_param_seed,solver_param_box,solver_param_eps,solver_param_epsR,solver_param_kappa,solver_param_level,solver_param_mu,solver_param_niter,solver_param_niter_inner,solver_param_niter_outer,solver_param_sigma,solver_param_tau,solver_param_threshkind,solver_param_wavelet,solver_param_wavelets,MAE,PSNR,time_s,n_repetitions,run_date,pylops_version,benchopt_version
-Deblurring,Python logo,FISTA-DWT2D,5.0,0,,0.1,,,3.0,,100.0,,,,,soft,haar,,20.830829905835163,17.780659263554348,0.3630718080000008,1,2026-10-06 21:00:02,2.8.0,1.10.0
-Deblurring,Python logo,FISTA-DWT2D,5.0,0,,1.0,,,3.0,,100.0,,,,,hard,haar,,25.456053412241012,17.075679917290067,0.3177820830000044,1,2026-10-06 21:00:02,2.8.0,1.10.0
-Deblurring,Python logo,LSQR-Laplacian,5.0,0,,,0.1,,,,100.0,,,,,,,,18.413778749711515,18.48661029729501,0.0811059250000028,1,2026-10-06 21:00:02,2.8.0,1.10.0
-Deblurring,Python logo,LinearizedADMM-rMS,5.0,0,,,,10.0,,,300.0,,,0.1,50.0,,,,8.34349229841784,21.657704824948315,3.8502821509999943,1,2026-10-06 21:00:02,2.8.0,1.10.0
-Deblurring,Python logo,PrimalDual-DWT2D,5.0,0,,0.25,,,3.0,,1500.0,,,,0.4,,,haar+db4,14.339313669051448,19.08972676326258,5.829526578999996,1,2026-10-06 21:00:02,2.8.0,1.10.0
-Deblurring,Python logo,PrimalDual-DWT2D,5.0,0,,0.25,,,3.0,,500.0,,,,0.4,,,db4,20.12744535609456,17.802616776669396,1.9624784199999965,1,2026-10-06 21:00:02,2.8.0,1.10.0
-Deblurring,Python logo,PrimalDual-DWT2D,5.0,0,,0.25,,,3.0,,500.0,,,,0.4,,,haar,17.667572374125722,18.14965513292614,1.8783075520000023,1,2026-10-06 21:00:02,2.8.0,1.10.0
-Deblurring,Python logo,PrimalDual-TV,5.0,0,False,0.5,,,,,3000.0,,,,,,,,8.998772685324429,21.265810148698463,2.2262628929999977,1,2026-10-06 21:00:02,2.8.0,1.10.0
-Deblurring,Python logo,PrimalDual-TV,5.0,0,True,0.5,,,,,3000.0,,,,,,,,7.839997595492487,22.22379873712665,2.2567690979999995,1,2026-10-06 21:00:02,2.8.0,1.10.0
-Deblurring,Python logo,SplitBregman-TV,5.0,0,,2.0,,,,1.5,,5.0,10.0,,,,,,14.937938721723764,18.358868618204863,0.2647907509999996,1,2026-10-06 21:00:02,2.8.0,1.10.0
-Deblurring,Python logo,SplitBregman-TV-DWT2D,5.0,0,,1.0,,,3.0,1.5,,5.0,10.0,,,,haar,,15.852742889511346,17.82885315206504,0.4356382380000028,1,2026-10-06 21:00:02,2.8.0,1.10.0
+objective,dataset,solver,dataset_param_noise_std,dataset_param_seed,solver_param_box,solver_param_eps,solver_param_epsR,solver_param_kappa,solver_param_level,solver_param_mu,solver_param_niter,solver_param_niter_inner,solver_param_niter_outer,solver_param_sigma,solver_param_sigmad,solver_param_tau,solver_param_threshkind,solver_param_wavelet,solver_param_wavelets,MAE,PSNR,time_s,n_repetitions,run_date,pylops_version,benchopt_version
+Deblurring,Python logo,FISTA-DWT2D,5.0,0,,0.1,,,3.0,,100.0,,,,,,soft,haar,,20.830829905835227,17.780659263554337,0.620869141,1,2026-10-08 09:26:50,2.8.0,1.10.0
+Deblurring,Python logo,FISTA-DWT2D,5.0,0,,1.0,,,3.0,,100.0,,,,,,hard,haar,,25.456053412240887,17.07567991729009,0.6612141230000006,1,2026-10-08 09:26:50,2.8.0,1.10.0
+Deblurring,Python logo,LSQR-Laplacian,5.0,0,,,0.1,,,,100.0,,,,,,,,,18.413779928310863,18.48660918558163,0.1891529749999989,1,2026-10-08 09:26:50,2.8.0,1.10.0
+Deblurring,Python logo,LinearizedADMM-rMS,5.0,0,,,,10.0,,,300.0,,,0.1,,50.0,,,,8.343492298417845,21.657704824948315,8.920822244,1,2026-10-08 09:26:50,2.8.0,1.10.0
+Deblurring,Python logo,PnP-ADMM-BM3D,5.0,0,,,,,,,60.0,,,0.004,,15.0,,,,9.38900619768768,21.381758536836102,42.172022664,1,2026-10-08 09:26:50,2.8.0,1.10.0
+Deblurring,Python logo,PrimalDual-DWT2D,5.0,0,,0.25,,,3.0,,1500.0,,,,,0.4,,,haar+db4,14.33931366905145,19.089726763262583,12.832127177000004,1,2026-10-08 09:26:50,2.8.0,1.10.0
+Deblurring,Python logo,PrimalDual-DWT2D,5.0,0,,0.25,,,3.0,,500.0,,,,,0.4,,,db4,20.12744535609456,17.802616776669396,4.3587495769999975,1,2026-10-08 09:26:50,2.8.0,1.10.0
+Deblurring,Python logo,PrimalDual-DWT2D,5.0,0,,0.25,,,3.0,,500.0,,,,,0.4,,,haar,17.667572374125726,18.14965513292613,4.279209960999992,1,2026-10-08 09:26:50,2.8.0,1.10.0
+Deblurring,Python logo,PrimalDual-TV,5.0,0,False,0.5,,,,,3000.0,,,,,,,,,8.998772685324429,21.265810148698463,4.576950745000019,1,2026-10-08 09:26:50,2.8.0,1.10.0
+Deblurring,Python logo,PrimalDual-TV,5.0,0,True,0.5,,,,,3000.0,,,,,,,,,7.839997595492487,22.22379873712665,4.544314325999991,1,2026-10-08 09:26:50,2.8.0,1.10.0
+Deblurring,Python logo,RED-BM3D,5.0,0,,,,,,,60.0,50.0,,0.02,0.08,,,,,10.077204857517716,21.684851958614047,46.27565847699998,1,2026-10-08 09:26:50,2.8.0,1.10.0
+Deblurring,Python logo,SplitBregman-TV,5.0,0,,2.0,,,,1.5,,5.0,10.0,,,,,,,14.937938721723764,18.358868618204863,0.5849174379999909,1,2026-10-08 09:26:50,2.8.0,1.10.0
+Deblurring,Python logo,SplitBregman-TV-DWT2D,5.0,0,,1.0,,,3.0,1.5,,5.0,10.0,,,,,haar,,15.852742889511346,17.82885315206504,0.9704707660000054,1,2026-10-08 09:26:50,2.8.0,1.10.0
