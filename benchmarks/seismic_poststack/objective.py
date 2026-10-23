@@ -37,6 +37,10 @@ class Objective(BaseObjective):
     def evaluate_result(self, x):
         return compute_metrics(self.x_true, x)
 
+    def save_final_results(self, x):
+        # stored in the parquet output, then plotted on the benchmark page
+        return x
+
     def get_one_result(self):
         return dict(x=np.zeros(self.meta["dims"]))
 

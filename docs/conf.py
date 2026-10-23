@@ -26,6 +26,7 @@ myst_heading_anchors = 3
 repo_root = Path(__file__).resolve().parents[1]
 benchmarks_dir = str(repo_root / "benchmarks")
 results_dir = str(repo_root / "results")
+estimates_dir = str(repo_root / "estimates")
 github_url = "https://github.com/PyLops/pylops-benchmarks"
 github_branch = "main"
 

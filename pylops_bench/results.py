@@ -4,18 +4,26 @@ Each benchmark has a single table ``results/<benchmark>.csv`` with one row
 per (objective, dataset, dataset parameters, solver, solver parameters)
 configuration. Re-running a configuration replaces its row (upsert) and
 updates its ``run_date``.
+
+If the raw results come from a parquet file with the solver estimates (saved
+by ``Objective.save_final_results``), each estimate is written to
+``estimates/<benchmark>/<key>.npz`` and its file name is stored in the
+``estimate`` column of the table.
 """
 
 from __future__ import annotations
 
+import hashlib
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
+from benchopt.results import read_results
 
 METRICS = ["MAE", "PSNR"]
 ID_COLUMNS = ["objective", "dataset", "solver"]
+ESTIMATE = "estimate"
 
 
 def _package_version(name: str) -> str:
@@ -50,6 +58,24 @@ def key_columns(df: pd.DataFrame) -> list[str]:
     return ID_COLUMNS + param_columns(df)
 
 
+def estimate_key(row: pd.Series, keys: list[str]) -> str:
+    """Short hash of the configuration of ``row``.
+
+    Empty values are skipped, so that the key does not change when other
+    solvers add parameter columns to the table.
+    """
+    items = sorted((k, _norm(row[k])) for k in keys if _norm(row[k]) != "")
+    return hashlib.md5(repr(items).encode()).hexdigest()[:12]
+
+
+def _last_valid(values: pd.Series):
+    """Last value that is not missing (estimates of the last repetition)."""
+    for value in reversed(values.tolist()):
+        if value is not None and not (isinstance(value, float) and np.isnan(value)):
+            return value
+    return None
+
+
 def tidy(raw: pd.DataFrame) -> pd.DataFrame:
     """Aggregate a raw BenchOpt result table into one row per configuration.
 
@@ -80,6 +106,9 @@ def tidy(raw: pd.DataFrame) -> pd.DataFrame:
         df[m] = raw[f"objective_{m}"]
     df["time_s"] = raw["time"]
     df["run_date"] = pd.to_datetime(raw["run_date"])
+    estimates = "final_results" in raw
+    if estimates:
+        df["_estimate"] = raw["final_results"]
 
     keys = key_columns(df)
     # group on normalised keys so that NaN parameters (not used by a given
@@ -96,6 +125,10 @@ def tidy(raw: pd.DataFrame) -> pd.DataFrame:
         }
     ).reset_index(drop=True)
     out["n_repetitions"] = grouped.size().to_numpy()
+    if estimates:
+        # ``_estimate`` holds arrays: it is dropped by ``update_results``
+        # once they are saved, and never written to the result table
+        out["_estimate"] = [_last_valid(s) for _, s in grouped["_estimate"]]
     out["run_date"] = out["run_date"].dt.strftime("%Y-%m-%d %H:%M:%S")
     out["pylops_version"] = _package_version("pylops")
     out["benchopt_version"] = _package_version("benchopt")
@@ -105,7 +138,7 @@ def tidy(raw: pd.DataFrame) -> pd.DataFrame:
 def _order(df: pd.DataFrame) -> pd.DataFrame:
     keys = key_columns(df)
     rest = [c for c in df.columns if c not in keys]
-    first = ["MAE", "PSNR", "time_s", "n_repetitions"]
+    first = ["MAE", "PSNR", "time_s", "n_repetitions", ESTIMATE]
     rest = [c for c in first if c in rest] + [c for c in rest if c not in first]
     df = df[keys + rest]
     sort_key = df[keys].apply(lambda col: col.map(_norm))
@@ -128,18 +161,57 @@ def results_path(results_dir: Path | str, benchmark: str) -> Path:
     return Path(results_dir) / f"{benchmark}.csv"
 
 
+def _compact(x) -> np.ndarray:
+    """Single precision copy of an estimate, to halve its size on disk."""
+    x = np.asarray(x)
+    return x.astype(np.complex64 if np.iscomplexobj(x) else np.float32)
+
+
+def save_estimates(
+    new: pd.DataFrame, merged: pd.DataFrame, estimates_dir: Path | str
+) -> None:
+    """Write the estimates of ``new`` in ``estimates_dir`` and remove the
+    files no longer referenced by the ``merged`` result table."""
+    estimates_dir = Path(estimates_dir)
+    estimates_dir.mkdir(parents=True, exist_ok=True)
+    if ESTIMATE in new:
+        for _, row in new.dropna(subset=[ESTIMATE]).iterrows():
+            x = _compact(row["_estimate"])
+            np.savez_compressed(estimates_dir / row[ESTIMATE], x=x)
+    used = set(merged[ESTIMATE].dropna()) if ESTIMATE in merged else set()
+    for path in estimates_dir.glob("*.npz"):
+        if path.name not in used:
+            path.unlink()
+
+
 def update_results(
-    raw_csv: Path | str,
+    raw_file: Path | str,
     benchmark: str,
     results_dir: Path | str = "results",
+    estimates_dir: Path | str | None = None,
     dry_run: bool = False,
 ) -> pd.DataFrame:
-    """Tidy ``raw_csv`` and upsert it into ``results/<benchmark>.csv``."""
-    new = tidy(pd.read_csv(raw_csv))
+    """Tidy ``raw_file`` (``.csv`` or ``.parquet``) and upsert it into
+    ``results/<benchmark>.csv``.
+
+    If ``estimates_dir`` is given, the solver estimates held by the raw file
+    are saved in ``estimates_dir/<benchmark>/``, and the files there that
+    are no longer referenced by the table are removed.
+    """
+    new = tidy(read_results(raw_file))
+    if estimates_dir is not None and "_estimate" in new:
+        keys = key_columns(new)
+        has_estimate = new["_estimate"].notna()
+        new.loc[has_estimate, ESTIMATE] = [
+            f"{estimate_key(row, keys)}.npz" for _, row in new[has_estimate].iterrows()
+        ]
+        new = _order(new)
     path = results_path(results_dir, benchmark)
     existing = pd.read_csv(path) if path.exists() else None
-    merged = upsert(existing, new)
+    merged = upsert(existing, new.drop(columns="_estimate", errors="ignore"))
     if not dry_run:
         path.parent.mkdir(parents=True, exist_ok=True)
         merged.to_csv(path, index=False)
+        if estimates_dir is not None:
+            save_estimates(new, merged, Path(estimates_dir) / benchmark)
     return merged

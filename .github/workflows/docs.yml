@@ -33,6 +33,14 @@ jobs:
         with:
           python-version: "3.12"
           enable-cache: true
+      # solver estimates plotted on the benchmark pages (orphan branch, missing
+      # before the first benchmark run)
+      - name: Fetch solver estimates
+        run: |
+          mkdir -p estimates
+          if git fetch --depth 1 origin estimates; then
+            git archive FETCH_HEAD | tar -x -C estimates
+          fi
       - name: Install
         run: uv sync --locked --no-dev --group doc
       - name: Build

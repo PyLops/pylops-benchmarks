@@ -53,3 +53,21 @@ class Dataset(BaseDataset):
             ax.axis("off")
         fig.tight_layout()
         return fig
+
+    def plot_estimate(self, x_true, x, meta):
+        """True image, denoised image and error."""
+        import matplotlib.pyplot as plt
+
+        x = np.real(x).reshape(meta["dims"])
+        opts = dict(cmap="gray", vmin=0, vmax=1)
+        fig, axs = plt.subplots(1, 3, figsize=(12, 4))
+        axs[0].imshow(x_true, **opts)
+        axs[0].set_title("True model")
+        axs[1].imshow(x, **opts)
+        axs[1].set_title("Estimate")
+        axs[2].imshow(x - x_true, cmap="RdBu_r", vmin=-0.2, vmax=0.2)
+        axs[2].set_title("Error")
+        for ax in axs:
+            ax.axis("off")
+        fig.tight_layout()
+        return fig

@@ -234,3 +234,6 @@ benchmarks/*/data/
 
 # Generated docs pages
 docs/auto_benchmarks/
+
+# Solver estimates (published on the `estimates` branch)
+/estimates/

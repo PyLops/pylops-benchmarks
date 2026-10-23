@@ -69,3 +69,21 @@ class Dataset(BaseDataset):
             ax.axis("off")
         fig.tight_layout()
         return fig
+
+    def plot_estimate(self, x_true, x, meta):
+        """True image, deblurred image and error."""
+        import matplotlib.pyplot as plt
+
+        x = np.real(x).reshape(meta["dims"])
+        opts = dict(cmap="viridis", vmin=0, vmax=250)
+        fig, axs = plt.subplots(1, 3, figsize=(10, 3.5))
+        axs[0].imshow(x_true, **opts)
+        axs[0].set_title("True model")
+        axs[1].imshow(x, **opts)
+        axs[1].set_title("Estimate")
+        axs[2].imshow(x - x_true, cmap="RdBu_r", vmin=-50, vmax=50)
+        axs[2].set_title("Error")
+        for ax in axs:
+            ax.axis("off")
+        fig.tight_layout()
+        return fig

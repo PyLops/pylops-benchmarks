@@ -20,8 +20,10 @@ the true model using PyLops' MAE and PSNR.
 | [`seismic_poststack`](benchmarks/seismic_poststack) | Seismic post-stack inversion |
 | [`seismic_prestack`](benchmarks/seismic_prestack) | Seismic pre-stack inversion |
 
-Results are stored in [`results/`](results) (one CSV per benchmark) and
-published at https://pylops.github.io/pylops-benchmarks.
+Results are stored in [`results/`](results) (one CSV per benchmark), the
+estimates of the solvers in the
+[`estimates`](https://github.com/PyLops/pylops-benchmarks/tree/estimates)
+branch, and both are published at https://pylops.github.io/pylops-benchmarks.
 
 ## Quick start
 
@@ -48,10 +50,14 @@ To preview the pages with results from a local run instead of the committed
 ones, collect them into a separate folder and point the build to it:
 
 ```bash
-uv run benchopt run benchmarks/seismic_interpolation --no-plot --no-cache --output /tmp/raw.csv
-uv run python scripts/collect_results.py seismic_interpolation /tmp/raw.csv --results-dir /tmp/results
-uv run sphinx-build -W -D results_dir=/tmp/results docs docs/_build/html
+uv run benchopt run benchmarks/seismic_interpolation --no-plot --no-cache --output /tmp/raw.parquet
+uv run python scripts/collect_results.py seismic_interpolation /tmp/raw.parquet --results-dir /tmp/results --estimates-dir /tmp/estimates
+uv run sphinx-build -W -D results_dir=/tmp/results -D estimates_dir=/tmp/estimates docs docs/_build/html
 ```
+
+The leaderboards link a figure of the estimate of every solver, plotted from
+the estimates stored on the `estimates` branch (see
+[CONTRIBUTING.md](CONTRIBUTING.md)).
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) to add problems and solvers, and for
 details on the CI.

@@ -56,3 +56,21 @@ class Dataset(BaseDataset):
         axs[1].set_title("Data")
         fig.tight_layout()
         return fig
+
+    def plot_estimate(self, x_true, x, meta):
+        """True sparse vector, estimate and error."""
+        import matplotlib.pyplot as plt
+
+        x = np.real(x).reshape(meta["dims"])
+        fig, axs = plt.subplots(
+            2, 1, sharex=True, figsize=(10, 4.5), height_ratios=(2, 1)
+        )
+        axs[0].stem(
+            x_true, linefmt="k-", markerfmt="ko", basefmt="k-", label="True model"
+        )
+        axs[0].plot(x, "r.", ms=8, label="Estimate")
+        axs[0].legend()
+        axs[1].plot(x - x_true, "k.-", lw=1)
+        axs[1].set_title("Error")
+        fig.tight_layout()
+        return fig

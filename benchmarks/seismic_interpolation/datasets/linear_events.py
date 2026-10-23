@@ -89,3 +89,30 @@ class Dataset(BaseDataset):
         axs[0].set_ylabel("t [s]")
         fig.tight_layout()
         return fig
+
+    def plot_estimate(self, x_true, x, meta):
+        """True model, reconstruction and error, with the same clipping."""
+        import matplotlib.pyplot as plt
+
+        xaxis, taxis = meta["xaxis"], meta["taxis"]
+        x = np.real(x).reshape(meta["dims"])
+        clip = np.abs(x_true).max()
+        opts = dict(
+            cmap="gray",
+            vmin=-clip,
+            vmax=clip,
+            aspect="auto",
+            interpolation="none",
+            extent=(xaxis[0], xaxis[-1], taxis[-1], taxis[0]),
+        )
+
+        fig, axs = plt.subplots(1, 3, sharey=True, figsize=(12, 4))
+        for ax, d, title in zip(
+            axs, (x_true, x, x - x_true), ("True model", "Estimate", "Error")
+        ):
+            ax.imshow(d.T, **opts)
+            ax.set_title(title)
+            ax.set_xlabel("x [m]")
+        axs[0].set_ylabel("t [s]")
+        fig.tight_layout()
+        return fig

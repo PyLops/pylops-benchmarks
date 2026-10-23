@@ -54,3 +54,19 @@ def test_dataset_plot(bench_loader, data):
     fig = bench_loader(DATASET, "Dataset").plot(**data)
     assert isinstance(fig, Figure)
     plt.close(fig)
+
+
+def test_dataset_plot_estimate(bench_loader, data):
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    from matplotlib.figure import Figure
+
+    # estimates are stored in single precision
+    x = data["x_true"].astype("float32")
+    fig = bench_loader(DATASET, "Dataset").plot_estimate(
+        x_true=data["x_true"], x=x, meta=data["meta"]
+    )
+    assert isinstance(fig, Figure)
+    plt.close(fig)
