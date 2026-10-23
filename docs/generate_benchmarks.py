@@ -6,7 +6,10 @@ At ``builder-inited`` it writes, in ``auto_benchmarks/``:
 - ``<benchmark>.md``: the benchmark README followed, for every dataset
   configuration, by the dataset docstring and a leaderboard sorted by PSNR;
 - ``figures/*.png``: the true model and data of every dataset configuration
-  in the result table, drawn by the optional ``plot`` method of the dataset.
+  in the result table, drawn by the optional ``plot`` method of the dataset,
+  and the estimate of every solver whose file is found in ``estimates_dir``,
+  drawn by the optional ``plot_estimate`` method and linked from the
+  leaderboard.
 """
 
 from __future__ import annotations
@@ -18,6 +21,7 @@ import shutil
 from pathlib import Path
 
 import matplotlib
+import numpy as np
 import pandas as pd
 from sphinx.util import logging
 
@@ -106,26 +110,68 @@ def _dataset_class(bench_dir: Path, name: str):
     return None if path is None else load_class(path, "Dataset")
 
 
-def _figure(cls, bench_dir: Path, row: pd.Series, figdir: Path) -> str | None:
-    """Plot the true model and data of the dataset configuration in ``row``
-    and return the figure path relative to the benchmark page, or ``None``
-    if the dataset has no ``plot`` method."""
-    if not hasattr(cls, "plot"):
-        return None
-    name = row["dataset"]
+def _load_dataset(cls, row: pd.Series):
+    """Instance and data of the dataset configuration in ``row``, or
+    ``(None, None)`` if the dataset has nothing to plot or fails to load."""
+    if not (hasattr(cls, "plot") or hasattr(cls, "plot_estimate")):
+        return None, None
     params = _dataset_params(row, default_parameters(cls))
-    slug = re.sub(r"\W+", "_", name.lower()).strip("_")
+    try:
+        dataset = cls.get_instance(**params)
+        return dataset, dataset.get_data()
+    except Exception as exc:  # a broken dataset must not block the results
+        name = row["dataset"]
+        logger.info(f"generate_benchmarks: cannot load {name!r} ({params}): {exc}")
+        return None, None
+
+
+def _figure(dataset, data, bench_dir: Path, figdir: Path) -> str | None:
+    """Plot the true model and data of ``dataset`` and return the figure
+    path relative to the benchmark page, or ``None`` if the dataset has no
+    ``plot`` method."""
+    if not hasattr(dataset, "plot"):
+        return None
+    params = {k: getattr(dataset, k) for k in default_parameters(type(dataset))}
+    slug = re.sub(r"\W+", "_", dataset.name.lower()).strip("_")
     key = hashlib.md5(repr(sorted(params.items())).encode()).hexdigest()[:8]
     fname = f"{bench_dir.name}_{slug}_{key}.png"
     try:
-        dataset = cls.get_instance(**params)
-        fig = dataset.plot(**dataset.get_data())
+        fig = dataset.plot(**data)
         fig.savefig(figdir / fname, dpi=150, bbox_inches="tight")
         plt.close(fig)
     except Exception as exc:  # a broken plot must not block the results
-        logger.info(f"generate_benchmarks: cannot plot {name!r} ({params}): {exc}")
+        logger.info(f"generate_benchmarks: cannot plot {dataset.name!r}: {exc}")
         return None
     return f"{FIGDIR}/{fname}"
+
+
+def _estimate_figures(
+    dataset, data, df: pd.DataFrame, estimates: Path, figdir: Path, varying
+) -> dict:
+    """Plot the estimate of every row of ``df`` whose file is in ``estimates``
+    and map the row index to the figure path relative to the benchmark page."""
+    if not hasattr(dataset, "plot_estimate") or "estimate" not in df:
+        return {}
+    figures = {}
+    for idx, row in df.dropna(subset=["estimate"]).iterrows():
+        path = estimates / row["estimate"]
+        if not path.exists():
+            continue
+        fname = f"{estimates.name}_{path.stem}.png"
+        params = _solver_params(row, varying)
+        solver = f"{row['solver']} ({params})" if params else row["solver"]
+        try:
+            x = np.load(path)["x"]
+            fig = dataset.plot_estimate(x_true=data["x_true"], x=x, meta=data["meta"])
+            fig.suptitle(f"{solver}: PSNR {row['PSNR']:.2f} dB")
+            fig.tight_layout()
+            fig.savefig(figdir / fname, dpi=100, bbox_inches="tight")
+            plt.close(fig)
+        except Exception as exc:  # a broken plot must not block the results
+            logger.info(f"generate_benchmarks: cannot plot estimate {solver!r}: {exc}")
+            continue
+        figures[idx] = f"{FIGDIR}/{fname}"
+    return figures
 
 
 def _readme(bench_dir: Path) -> tuple[str, str]:
@@ -147,10 +193,10 @@ def _table(header: list[str], rows: list[list[str]]) -> str:
     return "\n".join(out)
 
 
-def _leaderboard(df: pd.DataFrame, solver_url, varying) -> str:
+def _leaderboard(df: pd.DataFrame, solver_url, varying, figures: dict) -> str:
     df = df.sort_values("PSNR", ascending=False)
     rows = []
-    for rank, (_, row) in enumerate(df.iterrows(), start=1):
+    for rank, (idx, row) in enumerate(df.iterrows(), start=1):
         url = solver_url(row["solver"])
         solver = f"[{row['solver']}]({url})" if url else row["solver"]
         rows.append(
@@ -161,9 +207,14 @@ def _leaderboard(df: pd.DataFrame, solver_url, varying) -> str:
                 f"{row['MAE']:.4g}",
                 f"{row['PSNR']:.2f}",
                 f"{row['time_s']:.3f}",
+                f"[view]({figures[idx]})" if idx in figures else "",
             ]
         )
     header = ["Rank", "Solver", "Parameters", "MAE", "PSNR [dB]", "Time [s]"]
+    header.append("Figure")
+    if not figures:  # no estimate to show
+        header.pop()
+        rows = [row[:-1] for row in rows]
     if not any(row[2] for row in rows):  # no parameter tells entries apart
         header.pop(2)
         rows = [row[:2] + row[3:] for row in rows]
@@ -191,6 +242,7 @@ def _benchmark_page(
         lines.append("This benchmark has not been run yet.")
         return "\n".join(lines) + "\n"
 
+    estimates = Path(cfg.estimates_dir) / name if cfg.estimates_dir else None
     csv_url = f"{blob}/results/{name}.csv"
     lines += [f"Raw results: [`results/{name}.csv`]({csv_url}).", ""]
     dataset_cols = ["objective", "dataset"] + [
@@ -207,10 +259,16 @@ def _benchmark_page(
             lines += [inspect.cleandoc(cls.__doc__), ""]
         if params:
             lines += [f"Dataset parameters: `{params}`", ""]
-        figure = None if cls is None else _figure(cls, bench_dir, first, figdir)
+        dataset, data = (None, None) if cls is None else _load_dataset(cls, first)
+        figure = None if dataset is None else _figure(dataset, data, bench_dir, figdir)
         if figure:
             lines += [f"![True model and data of {first['dataset']}]({figure})", ""]
-        lines += [_leaderboard(group, solver_url, varying), ""]
+        figures = {}
+        if dataset is not None and estimates is not None:
+            figures = _estimate_figures(
+                dataset, data, group, estimates, figdir, varying
+            )
+        lines += [_leaderboard(group, solver_url, varying, figures), ""]
     return "\n".join(lines) + "\n"
 
 
@@ -277,6 +335,7 @@ def generate(app) -> None:
 def setup(app):
     app.add_config_value("benchmarks_dir", "", "env")
     app.add_config_value("results_dir", "", "env")
+    app.add_config_value("estimates_dir", "", "env")
     app.add_config_value("github_url", "", "env")
     app.add_config_value("github_branch", "main", "env")
     app.connect("builder-inited", generate)

@@ -117,3 +117,36 @@ class Dataset(BaseDataset):
             ax.axis("tight")
         fig.tight_layout()
         return fig
+
+    def plot_estimate(self, x_true, x, meta):
+        """True models, inverted models and errors, one row per parameter."""
+        import matplotlib.pyplot as plt
+
+        xx, z = meta["x"], meta["z"]
+        x = np.real(x).reshape(meta["dims"])
+        extent = (xx[0], xx[-1], z[-1], z[0])
+
+        fig, axs = plt.subplots(3, 3, sharex=True, sharey=True, figsize=(12, 9))
+        for ip, param in enumerate((r"$V_P$", r"$V_S$", r"$\rho$")):
+            vmin, vmax = x_true[:, ip].min(), x_true[:, ip].max()
+            mopts = dict(cmap="gist_rainbow", vmin=vmin, vmax=vmax, extent=extent)
+            eclip = 0.2 * (vmax - vmin)
+            axs[ip, 0].imshow(x_true[:, ip], **mopts)
+            axs[ip, 0].set_title(rf"True $\ln$ {param}")
+            axs[ip, 1].imshow(x[:, ip], **mopts)
+            axs[ip, 1].set_title(rf"Estimated $\ln$ {param}")
+            axs[ip, 2].imshow(
+                x[:, ip] - x_true[:, ip],
+                cmap="RdBu_r",
+                vmin=-eclip,
+                vmax=eclip,
+                extent=extent,
+            )
+            axs[ip, 2].set_title(rf"Error $\ln$ {param}")
+            axs[ip, 0].set_ylabel("z [km]")
+        for ax in axs.ravel():
+            ax.axis("tight")
+        for ax in axs[-1]:
+            ax.set_xlabel("x [km]")
+        fig.tight_layout()
+        return fig

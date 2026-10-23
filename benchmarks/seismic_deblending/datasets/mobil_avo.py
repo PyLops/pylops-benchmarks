@@ -92,3 +92,30 @@ class Dataset(BaseDataset):
         axs[0].set_ylabel("t [s]")
         fig.tight_layout()
         return fig
+
+    def plot_estimate(self, x_true, x, meta):
+        """True model, deblended data and error, with the same clipping."""
+        import matplotlib.pyplot as plt
+
+        ns, nt = meta["dims"]
+        x = np.real(x).reshape(meta["dims"])
+        clip = 0.3 * np.abs(x_true).max()
+        opts = dict(
+            cmap="gray",
+            vmin=-clip,
+            vmax=clip,
+            aspect="auto",
+            interpolation="none",
+            extent=(0, ns, nt * meta["dt"], 0),
+        )
+
+        fig, axs = plt.subplots(1, 3, sharey=True, figsize=(12, 4))
+        for ax, d, title in zip(
+            axs, (x_true, x, x - x_true), ("True model", "Estimate", "Error")
+        ):
+            ax.imshow(d.T, **opts)
+            ax.set_title(title)
+            ax.set_xlabel("Source")
+        axs[0].set_ylabel("t [s]")
+        fig.tight_layout()
+        return fig

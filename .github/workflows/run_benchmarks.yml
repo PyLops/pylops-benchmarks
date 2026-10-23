@@ -84,16 +84,33 @@ jobs:
           uv run benchopt run benchmarks/${{ matrix.benchmark }}
           --config benchmarks/${{ matrix.benchmark }}/run_config.yml
           --no-plot --no-display --no-cache
-          --output "$RUNNER_TEMP/${{ matrix.benchmark }}.csv"
+          --output "$RUNNER_TEMP/${{ matrix.benchmark }}.parquet"
+      # the orphan `estimates` branch holds the solver estimates of all the
+      # rows in results/*.csv (it does not exist before the first run): the
+      # ones of this benchmark are needed to prune the stale files
+      - name: Fetch committed estimates
+        env:
+          BENCH: ${{ matrix.benchmark }}
+        run: |
+          mkdir -p estimates
+          if git fetch --depth 1 origin estimates \
+              && git cat-file -e "FETCH_HEAD:$BENCH" 2>/dev/null; then
+            git archive FETCH_HEAD "$BENCH" | tar -x -C estimates
+          fi
       - name: Update result table
         run: >
           uv run python scripts/collect_results.py ${{ matrix.benchmark }}
-          "$RUNNER_TEMP/${{ matrix.benchmark }}.csv"
+          "$RUNNER_TEMP/${{ matrix.benchmark }}.parquet"
       - uses: actions/upload-artifact@v4
         with:
           name: results-${{ matrix.benchmark }}
           path: results/${{ matrix.benchmark }}.csv
           if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        with:
+          name: estimates-${{ matrix.benchmark }}
+          path: estimates/
+          if-no-files-found: ignore
 
   commit:
     needs: run
@@ -111,10 +128,47 @@ jobs:
           pattern: results-*
           merge-multiple: true
           path: results
-      - name: Commit results
+      - uses: actions/download-artifact@v4
+        # no estimates are uploaded if every run failed
+        continue-on-error: true
+        with:
+          pattern: estimates-*
+          merge-multiple: true
+          path: ${{ runner.temp }}/estimates
+      - name: Configure git
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+      # the estimates are force-pushed to the orphan `estimates` branch as a
+      # single parentless commit, so that they never pile up in the history
+      - name: Publish estimates
+        run: |
+          tree_dir="$RUNNER_TEMP/estimates-tree"
+          mkdir -p "$tree_dir"
+          old_tree=""
+          if git fetch --depth 1 origin estimates; then
+            git archive FETCH_HEAD | tar -x -C "$tree_dir"
+            old_tree=$(git rev-parse "FETCH_HEAD^{tree}")
+          fi
+          # every artifact holds all the estimates of its benchmark
+          for dir in "$RUNNER_TEMP"/estimates/*/; do
+            [ -d "$dir" ] || continue
+            bench=$(basename "$dir")
+            rm -rf "${tree_dir:?}/$bench"
+            cp -r "$dir" "$tree_dir/$bench"
+          done
+          # build the commit in a separate index, leaving the checkout alone
+          export GIT_INDEX_FILE="$RUNNER_TEMP/estimates.index"
+          git -C "$tree_dir" --git-dir="$GITHUB_WORKSPACE/.git" --work-tree=. add -A
+          tree=$(git write-tree)
+          if [ "$tree" = "$old_tree" ]; then
+            echo "No estimate changes"
+            exit 0
+          fi
+          commit=$(git commit-tree "$tree" -m "Update solver estimates")
+          git push --force origin "$commit:refs/heads/estimates"
+      - name: Commit results
+        run: |
           git add results/*.csv
           if git diff --cached --quiet; then
             echo "No result changes"

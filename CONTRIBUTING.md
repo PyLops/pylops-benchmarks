@@ -13,6 +13,7 @@ benchmarks/<name>/     one BenchOpt benchmark per problem
   README.md            description shown on the website
 benchmarks/_template/  copy-me skeleton
 results/<name>.csv     one result table per benchmark (written by CI)
+estimates/<name>/      solver estimates (written by CI to the `estimates` branch)
 scripts/               result collection
 docs/                  Sphinx website built from results/
 ```
@@ -47,6 +48,12 @@ uv sync --all-groups      # creates .venv with the package, tests (dev) and docs
    that returns a matplotlib `Figure` of the true model and the data (import
    matplotlib inside the method). The website draws it for every dataset
    configuration in the result table and shows it above its leaderboard.
+7. Optionally, add a `plot_estimate(self, x_true, x, meta)` method to each
+   dataset that returns a `Figure` comparing the estimate `x` of a solver with
+   the true model (e.g. true model, estimate and error, with the same colour
+   scales as `plot`). The website draws it for every row of the leaderboard
+   that has a saved estimate and links it from the *Figure* column; the solver
+   name and PSNR are added as a title.
 
 ## Add a solver
 
@@ -57,7 +64,9 @@ of solver and regularizer/preconditioner:
   other hyperparameters exposed as `parameters` (lists of values are swept);
 - build all operators in `set_objective` (not timed) and only solve in `run`
   (timed);
-- `get_result` returns `dict(x=...)` with `x` of shape `meta["dims"]`;
+- `get_result` returns `dict(x=...)` with `x` of shape `meta["dims"]`
+  (the objective saves it with `save_final_results`, to plot it on the
+  website);
 - if the solver uses randomness (e.g. a starting vector for power
   iterations), seed it.
 
@@ -78,18 +87,31 @@ to force a fresh run (e.g. to get new timings).
 To update the result table from a run (CI does this automatically):
 
 ```bash
-uv run benchopt run benchmarks/<name> --no-plot --no-cache --output /tmp/raw.csv
-uv run python scripts/collect_results.py <name> /tmp/raw.csv
+uv run benchopt run benchmarks/<name> --no-plot --no-cache --output /tmp/raw.parquet
+uv run python scripts/collect_results.py <name> /tmp/raw.parquet
 ```
 
 Rows are keyed on objective, dataset, solver and all their parameters: a
 rerun replaces the corresponding row (and its `run_date`), a new
 configuration adds a row.
 
+Only `.parquet` outputs hold the solver estimates: they are saved in
+`estimates/<name>/<key>.npz` (single precision) and the file name goes in the
+`estimate` column of the table. Files no longer referenced by the table are
+removed. A `.csv` output also works, but its rows get no estimate.
+
 Build the website:
 
 ```bash
 uv run sphinx-build -W docs docs/_build/html
+```
+
+The estimates are not stored on `main`, but on the orphan `estimates`
+branch, which CI overwrites with a single commit at every run. To show them
+on a local build, extract that branch into `estimates/`:
+
+```bash
+git fetch origin estimates && mkdir -p estimates && git archive FETCH_HEAD | tar -x -C estimates
 ```
 
 ## Continuous integration
@@ -102,6 +124,8 @@ All workflows install the locked environment with `uv sync --locked`.
 - **Run benchmarks** (`run_benchmarks.yml`): on push to `main` (changed
   benchmarks only) or manually (one or all benchmarks, optionally against a
   PyLops git ref). Results are upserted into `results/<name>.csv` and
-  committed by `github-actions[bot]`.
+  committed by `github-actions[bot]`. The solver estimates are merged with
+  those on the `estimates` branch, which is force-pushed as a single
+  parentless commit (so binaries never pile up in the history).
 - **Docs** (`docs.yml`): manually or weekly, builds the website from
-  `results/` and deploys it to GitHub Pages.
+  `results/` and the `estimates` branch, and deploys it to GitHub Pages.

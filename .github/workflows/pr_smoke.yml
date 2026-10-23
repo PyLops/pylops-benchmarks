@@ -72,8 +72,8 @@ jobs:
         run: >
           uv run benchopt run benchmarks/${{ matrix.benchmark }}
           -r 1 --no-plot --no-display --no-cache
-          --output "$RUNNER_TEMP/${{ matrix.benchmark }}.csv"
+          --output "$RUNNER_TEMP/${{ matrix.benchmark }}.parquet"
       - name: Collect results (dry run)
         run: >
           uv run python scripts/collect_results.py ${{ matrix.benchmark }}
-          "$RUNNER_TEMP/${{ matrix.benchmark }}.csv" --dry-run
+          "$RUNNER_TEMP/${{ matrix.benchmark }}.parquet" --dry-run

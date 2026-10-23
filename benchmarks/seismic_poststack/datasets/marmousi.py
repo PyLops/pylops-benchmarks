@@ -92,3 +92,30 @@ class Dataset(BaseDataset):
         axs[0].set_ylabel("z [km]")
         fig.tight_layout()
         return fig
+
+    def plot_estimate(self, x_true, x, meta):
+        """True model, inverted model and error."""
+        import matplotlib.pyplot as plt
+
+        xx, z = meta["x"], meta["z"]
+        x = np.real(x).reshape(meta["dims"])
+        extent = (xx[0], xx[-1], z[-1], z[0])
+        vmin, vmax = x_true.min(), x_true.max()
+        mopts = dict(cmap="gist_rainbow", vmin=vmin, vmax=vmax, extent=extent)
+        eclip = 0.2 * (vmax - vmin)
+
+        fig, axs = plt.subplots(1, 3, sharey=True, figsize=(12, 4))
+        axs[0].imshow(x_true, **mopts)
+        axs[0].set_title("True model")
+        axs[1].imshow(x, **mopts)
+        axs[1].set_title("Estimate")
+        axs[2].imshow(
+            x - x_true, cmap="RdBu_r", vmin=-eclip, vmax=eclip, extent=extent
+        )
+        axs[2].set_title("Error")
+        for ax in axs:
+            ax.axis("tight")
+            ax.set_xlabel("x [km]")
+        axs[0].set_ylabel("z [km]")
+        fig.tight_layout()
+        return fig
