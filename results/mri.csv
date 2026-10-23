@@ -1,10 +1,10 @@
-objective,dataset,solver,dataset_param_nlines,dataset_param_noise_std,dataset_param_seed,solver_param_eps,solver_param_level,solver_param_mu,solver_param_niter,solver_param_niter_inner,solver_param_niter_outer,solver_param_sigma,solver_param_sigmad,solver_param_tau,solver_param_tv,solver_param_wavelet,MAE,PSNR,time_s,n_repetitions,run_date,pylops_version,benchopt_version
-MRI,Shepp-Logan,FISTA-DWT2D,30,0.01,0,0.01,3.0,,500.0,,,,,,,haar,0.0453862872237768,21.490629684979226,7.354112955000005,1,2026-10-06 21:01:54,2.8.0,1.10.0
-MRI,Shepp-Logan,LinearizedADMM-TV,30,0.01,0,0.002,,,500.0,,,,,20.0,aniso,,0.003003096453802,42.86002383999892,11.30420163399998,1,2026-10-06 21:01:54,2.8.0,1.10.0
-MRI,Shepp-Logan,LinearizedADMM-TV,30,0.01,0,0.003,,,500.0,,,,,20.0,iso,,0.0047724209510872,36.29120557470026,7.996700392999998,1,2026-10-06 21:01:54,2.8.0,1.10.0
-MRI,Shepp-Logan,PnP-ADMM-BM3D,30,0.01,0,,,,50.0,,,0.05,,1.0,,,0.0134784453119564,26.563308139601208,46.69532227900001,1,2026-10-06 21:01:54,2.8.0,1.10.0
-MRI,Shepp-Logan,PrimalDual-TV,30,0.01,0,0.002,,,4000.0,,,,,,aniso,,0.0030489335598659,42.68581108919064,30.125885205999964,1,2026-10-06 21:01:54,2.8.0,1.10.0
-MRI,Shepp-Logan,PrimalDual-TV,30,0.01,0,0.003,,,4000.0,,,,,,iso,,0.0048377356985507,36.20511153846702,15.21972378700002,1,2026-10-06 21:01:54,2.8.0,1.10.0
-MRI,Shepp-Logan,RED-BM3D,30,0.01,0,,,,30.0,,,1.0,0.1,,,,0.0302406285356989,22.754761973467375,27.138275886999963,1,2026-10-06 21:01:54,2.8.0,1.10.0
-MRI,Shepp-Logan,SplitBregman-TV,30,0.01,0,0.03,,1.0,,5.0,50.0,,,,,,0.0039978057119211,41.90916303526777,13.672835334000013,1,2026-10-06 21:01:54,2.8.0,1.10.0
-MRI,Shepp-Logan,ZeroFilled,30,0.01,0,,,,,,,,,,,,0.0843884064045066,17.65231041785264,0.0011194760000421,1,2026-10-06 21:01:54,2.8.0,1.10.0
+objective,dataset,solver,dataset_param_nlines,dataset_param_noise_std,dataset_param_seed,solver_param_eps,solver_param_level,solver_param_mu,solver_param_niter,solver_param_niter_inner,solver_param_niter_outer,solver_param_sigma,solver_param_sigmad,solver_param_tau,solver_param_tv,solver_param_wavelet,MAE,PSNR,time_s,n_repetitions,estimate,run_date,pylops_version,benchopt_version
+MRI,Shepp-Logan,FISTA-DWT2D,30,0.01,0,0.01,3.0,,500.0,,,,,,,haar,0.045386287223776876,21.49062968497923,4.100538886999999,1,3353a8760839.npz,2026-10-23 16:27:08,2.8.0,1.10.0
+MRI,Shepp-Logan,LinearizedADMM-TV,30,0.01,0,0.002,,,500.0,,,,,20.0,aniso,,0.0030030964538020396,42.8600238399989,6.560875632999995,1,ea0b2a872470.npz,2026-10-23 16:27:08,2.8.0,1.10.0
+MRI,Shepp-Logan,LinearizedADMM-TV,30,0.01,0,0.003,,,500.0,,,,,20.0,iso,,0.004772420951087276,36.29120557470026,5.418100122000006,1,703f5e79f30e.npz,2026-10-23 16:27:08,2.8.0,1.10.0
+MRI,Shepp-Logan,PnP-ADMM-BM3D,30,0.01,0,,,,50.0,,,0.05,,1.0,,,0.013478445311956438,26.563308139601205,34.230095895000005,1,429e5a52ecd7.npz,2026-10-23 16:27:08,2.8.0,1.10.0
+MRI,Shepp-Logan,PrimalDual-TV,30,0.01,0,0.002,,,4000.0,,,,,,aniso,,0.003048933559865972,42.68581108919064,21.730484317000005,1,335740f9f30e.npz,2026-10-23 16:27:08,2.8.0,1.10.0
+MRI,Shepp-Logan,PrimalDual-TV,30,0.01,0,0.003,,,4000.0,,,,,,iso,,0.004837735698550766,36.20511153846702,15.35101569599999,1,b726bcb0928d.npz,2026-10-23 16:27:08,2.8.0,1.10.0
+MRI,Shepp-Logan,RED-BM3D,30,0.01,0,,,,30.0,,,1.0,0.1,,,,0.030240628535698935,22.754761973467378,20.27098194299998,1,752027c530e9.npz,2026-10-23 16:27:08,2.8.0,1.10.0
+MRI,Shepp-Logan,SplitBregman-TV,30,0.01,0,0.03,,1.0,,5.0,50.0,,,,,,0.00399780571192115,41.90916303526777,9.940189271999998,1,42a43f6914e7.npz,2026-10-23 16:27:08,2.8.0,1.10.0
+MRI,Shepp-Logan,ZeroFilled,30,0.01,0,,,,,,,,,,,,0.08438840640450669,17.65231041785264,0.0010603529999855255,1,1712d2931992.npz,2026-10-23 16:27:08,2.8.0,1.10.0
