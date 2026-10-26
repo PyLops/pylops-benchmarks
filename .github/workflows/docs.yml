@@ -18,14 +18,7 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    outputs:
-      private: ${{ steps.visibility.outputs.private }}
     steps:
-      - id: visibility
-        name: Check repository visibility
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: echo "private=$(gh api repos/${{ github.repository }} --jq .private)" >> "$GITHUB_OUTPUT"
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -51,14 +44,11 @@ jobs:
           name: docs-html
           path: docs/_build/html
           retention-days: 30
-      - if: steps.visibility.outputs.private == 'false'
-        uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v3
         with:
           path: docs/_build/html
 
   deploy:
-    # GitHub Pages is unavailable while the repository is private
-    if: needs.build.outputs.private == 'false'
     needs: build
     runs-on: ubuntu-latest
     environment:
